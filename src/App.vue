@@ -16,49 +16,45 @@ const Current = computed(() => {
 </script>
 
 <template>
-  <div class="min-h-dvh text-white relative overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-b from-[#2b1668] via-[#1b2a70] to-[#0b1e33]" />
-    <div class="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-purple-500/25 blur-3xl" />
-    <div class="absolute top-40 -right-24 w-72 h-72 rounded-full bg-cyan-400/20 blur-3xl" />
-    <div class="absolute bottom-10 left-10 w-72 h-72 rounded-full bg-fuchsia-500/15 blur-3xl" />
+  <div class="app-shell">
+    <div class="bg-layer" />
+    <div class="blob blob-a" />
+    <div class="blob blob-b" />
+    <div class="blob blob-c" />
 
-    <div class="relative max-w-md mx-auto px-4 pt-5 pb-24">
-      <div class="flex items-center justify-between mb-4">
+    <header class="header">
+      <div class="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <span class="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-white/10 border border-white/10">
-            <span class="text-lg">📈</span>
-          </span>
+          <span class="logo">📈</span>
           <div>
             <div class="text-xs text-white/70 leading-4">Finance</div>
             <div class="text-base font-semibold leading-5">Seu painel</div>
           </div>
         </div>
-        <button class="w-10 h-10 rounded-2xl bg-white/10 border border-white/10 active:scale-95 transition">
-          <span class="text-lg">🔔</span>
-        </button>
+        <button class="iconbtn" aria-label="Notificações">🔔</button>
       </div>
+    </header>
 
-      <component :is="Current" />
-    </div>
+    <main class="content">
+      <div class="max-w-md mx-auto px-4 pt-4 pb-28">
+        <component :is="Current" />
+      </div>
+    </main>
 
-    <nav class="fixed bottom-0 left-0 right-0">
+    <nav class="bottomnav" aria-label="Menu">
       <div class="max-w-md mx-auto px-4 pb-4">
-        <div class="relative rounded-3xl bg-[#1b1b3a]/70 backdrop-blur border border-white/10 px-3 py-3">
+        <div class="navcard">
           <div class="flex items-center justify-between">
             <button class="navbtn" :class="tab === 'home' && 'active'" @click="tab = 'home'">
               <span>🏠</span><small>Home</small>
             </button>
+
             <button class="navbtn" :class="tab === 'reports' && 'active'" @click="tab = 'reports'">
               <span>📊</span><small>Relatórios</small>
             </button>
 
-            <button
-              class="absolute left-1/2 -translate-x-1/2 -top-5 w-14 h-14 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 border border-white/20 shadow-xl active:scale-95 transition grid place-items-center"
-              @click="tab = 'add'"
-              aria-label="Adicionar"
-              title="Adicionar"
-            >
-              <span class="text-2xl">＋</span>
+            <button class="fab" @click="tab = 'add'" aria-label="Adicionar" title="Adicionar">
+              ＋
             </button>
 
             <div class="w-14"></div>
@@ -66,6 +62,7 @@ const Current = computed(() => {
             <button class="navbtn" :class="tab === 'add' && 'active'" @click="tab = 'add'">
               <span>🧾</span><small>Adicionar</small>
             </button>
+
             <button class="navbtn" :class="tab === 'profile' && 'active'" @click="tab = 'profile'">
               <span>👤</span><small>Perfil</small>
             </button>
@@ -77,6 +74,90 @@ const Current = computed(() => {
 </template>
 
 <style scoped>
+.app-shell {
+  min-height: 100dvh;
+  position: relative;
+  overflow: hidden;
+  color: white;
+}
+.bg-layer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #2b1668 0%, #1b2a70 45%, #0b1e33 100%);
+}
+.blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(60px);
+  opacity: 0.5;
+}
+.blob-a {
+  width: 320px;
+  height: 320px;
+  left: -120px;
+  top: -120px;
+  background: rgba(168, 85, 247, 0.7);
+}
+.blob-b {
+  width: 320px;
+  height: 320px;
+  right: -140px;
+  top: 180px;
+  background: rgba(34, 211, 238, 0.6);
+}
+.blob-c {
+  width: 320px;
+  height: 320px;
+  left: 60px;
+  bottom: -140px;
+  background: rgba(236, 72, 153, 0.45);
+}
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: rgba(7, 15, 25, 0.35);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.content {
+  position: relative;
+  z-index: 10;
+  height: calc(100dvh - 64px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.logo {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.iconbtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.bottomnav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+}
+.navcard {
+  position: relative;
+  border-radius: 24px;
+  background: rgba(20, 20, 45, 0.72);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 10px;
+}
 .navbtn {
   display: flex;
   flex-direction: column;
@@ -85,7 +166,7 @@ const Current = computed(() => {
   width: 72px;
   padding: 8px 6px;
   border-radius: 16px;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.72);
 }
 .navbtn.active {
   background: rgba(255, 255, 255, 0.1);
@@ -98,5 +179,21 @@ const Current = computed(() => {
 .navbtn span {
   font-size: 18px;
   line-height: 18px;
+}
+.fab {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: -18px;
+  width: 56px;
+  height: 56px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #fde047, #fb923c);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  color: #111827;
 }
 </style>

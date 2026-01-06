@@ -22,13 +22,38 @@ function computeCategories() {
 
 function renderChart() {
   const { labels, data } = computeCategories()
+  const palette = ['#7C3AED', '#F59E0B', '#EF4444', '#EC4899', '#10B981', '#3B82F6']
+
   if (chart) chart.destroy()
   chart = new Chart(canvasRef.value, {
     type: 'doughnut',
-    data: { labels, datasets: [{ data, borderWidth: 0, backgroundColor: ['#7c3aed', '#22c55e', '#f97316', '#ef4444', '#06b6d4', '#f59e0b'] }] },
+    data: {
+      labels,
+      datasets: [
+        {
+          data,
+          backgroundColor: labels.map((_, i) => palette[i % palette.length]),
+          borderWidth: 2,
+          borderColor: 'rgba(10,18,35,.55)',
+          hoverOffset: 6,
+        },
+      ],
+    },
     options: {
       cutout: '72%',
-      plugins: { legend: { display: false }, tooltip: { enabled: true } },
+      animation: { duration: 600 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: true,
+          callbacks: {
+            label: (ctx) => {
+              const v = Number(ctx.raw || 0)
+              return ` ${ctx.label}: R$ ${v.toLocaleString('pt-BR')}`
+            },
+          },
+        },
+      },
     },
   })
 }
@@ -77,6 +102,16 @@ watch(() => state.transactions.length, renderChart)
           </div>
         </div>
       </div>
+      <div class="mt-4 flex flex-wrap gap-2 justify-center">
+        <div
+          v-for="(lbl, i) in computeCategories().labels"
+          :key="lbl"
+          class="pill"
+        >
+          <span class="dot" :style="{ background: ['#7C3AED','#F59E0B','#EF4444','#EC4899','#10B981','#3B82F6'][i % 6] }"></span>
+          <span class="text-xs text-white/80">{{ lbl }}</span>
+        </div>
+      </div>
     </div>
 
     <div class="rounded-3xl bg-white/10 border border-white/10 backdrop-blur p-4">
@@ -109,5 +144,19 @@ watch(() => state.transactions.length, renderChart)
   padding: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
 }
 </style>
