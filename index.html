@@ -31,6 +31,7 @@
       background: radial-gradient(circle at 20% 20%, rgba(244, 63, 94, 0.12), transparent 35%),
                   radial-gradient(circle at 80% 0%, rgba(124, 58, 237, 0.18), transparent 30%),
                   #0f172a;
+      background-attachment: fixed;
     }
     .glass {
       background: rgba(255, 255, 255, 0.04);
@@ -276,26 +277,26 @@
         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
       };
 
-      const menuItems = [
-        { key: "home", label: "Home", target: "home-section" },
-        { key: "dashboard", label: "Dashboard", target: "dashboard-section" },
-        { key: "entries", label: "Entradas", target: "entries-section" },
-        { key: "expenses", label: "Gastos", target: "expenses-section" },
-        { key: "summary", label: "Resumo", target: "summary-section" },
-      ];
-
       const login = () => alert("Login com Google (mock) – sem backend configurado.");
 
       return (
         <div className="space-y-4 pb-28">
           {/* Home */}
-          <section id="home-section" className="glass rounded-2xl p-6 shadow-2xl bg-gradient-to-br from-primary/30 via-slate-900 to-slate-900">
-            <div className="flex items-center justify-between gap-3">
+          <section
+            id="home-section"
+            className="rounded-2xl p-6 shadow-2xl"
+            style={{
+              background: "radial-gradient(circle at 20% 20%, rgba(250, 204, 21, 0.2), transparent 40%), radial-gradient(circle at 80% 0%, rgba(236, 72, 153, 0.25), transparent 35%), linear-gradient(135deg, #0b1024 0%, #1b1c3a 100%)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-white/70">Finc v1.2</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-white/70">Finc v1.3</p>
                 <h1 className="mt-1 text-3xl font-display font-semibold leading-tight">Seu hub financeiro móvel</h1>
                 <p className="mt-2 text-white/70 text-sm">
-                  Centralize entradas, gastos e categorias. Visual moderno, mobile-first, pronto para salvar no seu navegador.
+                  Cards vibrantes, navegação inferior e acesso rápido às áreas principais.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <button
@@ -312,34 +313,48 @@
                   </button>
                 </div>
               </div>
-              <div className="hidden sm:block rounded-2xl bg-white/10 px-4 py-3 text-right">
+              <div className="rounded-2xl bg-white/5 px-4 py-3 text-right">
                 <p className="text-xs text-white/60">Saldo</p>
                 <p className="text-2xl font-extrabold text-mint">{currency(totals.balance)}</p>
                 <p className="text-xs text-white/60">Mês: {month.label}</p>
               </div>
             </div>
-          </section>
 
-          {/* Menu */}
-          <nav className="sticky top-2 z-10 glass rounded-2xl p-2 shadow-lg backdrop-blur">
-            <div className="grid grid-cols-5 gap-2 text-sm font-bold">
-              {menuItems.map((item) => (
-                <button
-                  key={item.key}
-                  onClick={() => {
-                    setView(item.key);
-                    scrollToSection(item.target);
-                  }}
-                  className={
-                    "rounded-xl px-3 py-2 transition " +
-                    (view === item.key ? "bg-white text-slate-900 shadow" : "text-white/80 hover:bg-white/10")
-                  }
-                >
-                  {item.label}
-                </button>
-              ))}
+            <div className="mt-6 grid gap-3 md:grid-cols-2">
+              <button
+                onClick={() => scrollToSection("summary-section")}
+                className="h-full rounded-2xl p-4 text-left shadow-lg"
+                style={{ background: "linear-gradient(135deg, #fbbf24, #f97316)" }}
+              >
+                <p className="text-sm font-semibold text-slate-900">Saldo total</p>
+                <p className="text-2xl font-extrabold text-slate-900">{currency(totals.balance)}</p>
+              </button>
+              <button
+                onClick={() => scrollToSection("entries-section")}
+                className="h-full rounded-2xl p-4 text-left shadow-lg"
+                style={{ background: "linear-gradient(135deg, #22c55e, #16a34a)" }}
+              >
+                <p className="text-sm font-semibold text-slate-900">Entradas</p>
+                <p className="text-2xl font-extrabold text-slate-900">{currency(totals.incomes)}</p>
+              </button>
+              <button
+                onClick={() => scrollToSection("expenses-section")}
+                className="h-full rounded-2xl p-4 text-left shadow-lg"
+                style={{ background: "linear-gradient(135deg, #f43f5e, #e11d48)" }}
+              >
+                <p className="text-sm font-semibold text-white">Despesas</p>
+                <p className="text-2xl font-extrabold text-white">{currency(totals.expenses)}</p>
+              </button>
+              <button
+                onClick={() => scrollToSection("summary-section")}
+                className="h-full rounded-2xl p-4 text-left shadow-lg"
+                style={{ background: "linear-gradient(135deg, #a855f7, #7c3aed)" }}
+              >
+                <p className="text-sm font-semibold text-white">Investimentos</p>
+                <p className="text-2xl font-extrabold text-white">{currency(Math.max(totals.balance * 0.2, 0))}</p>
+              </button>
             </div>
-          </nav>
+          </section>
 
           {/* Dashboard */}
           <header id="dashboard-section" className="glass rounded-2xl p-4 shadow-xl">
@@ -479,30 +494,48 @@
             <div className="fixed inset-0 z-20 bg-black/50" onClick={() => setFabOpen(false)}></div>
           )}
 
-          <div className={"fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-w-3xl px-4 pb-4 transition " + (fabOpen ? "translate-y-0" : "translate-y-[72px]")}>
-            <div className="glass rounded-2xl p-4 shadow-2xl">
-              <div className="flex items-center justify-between">
-                <div className="flex gap-2 rounded-full bg-white/10 p-1">
-                  <button
-                    onClick={() => setTab("expense")}
-                    className={"rounded-full px-3 py-1 text-sm font-bold " + (tab === "expense" ? "bg-white text-slate-900" : "text-white/80")}
-                  >
-                    Gasto
-                  </button>
-                  <button
-                    onClick={() => setTab("income")}
-                    className={"rounded-full px-3 py-1 text-sm font-bold " + (tab === "income" ? "bg-white text-slate-900" : "text-white/80")}
-                  >
-                    Entrada
-                  </button>
-                </div>
-                <button onClick={() => setFabOpen((v) => !v)} className="grid h-12 w-12 place-items-center rounded-full bg-accent text-slate-900 shadow-lg">
-                  {fabOpen ? "×" : "+"}
+          <div className={"fixed inset-x-0 bottom-3 z-30 mx-auto w-full max-w-3xl px-4 transition " + (fabOpen ? "translate-y-0" : "translate-y-[28px]")}>
+            <div className="rounded-[24px] bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 p-3 shadow-[0_20px_60px_rgba(0,0,0,0.5)] border border-white/10">
+              <div className="flex items-center justify-around text-xs font-bold text-white/80">
+                <button onClick={() => scrollToSection("home-section")} className="flex flex-col items-center gap-1 hover:text-white">
+                  <span className="text-lg">🏠</span>
+                  Home
+                </button>
+                <button onClick={() => setFabOpen(true)} className="flex flex-col items-center gap-1 text-accent">
+                  <span className="grid h-11 w-11 place-items-center rounded-full bg-accent text-slate-900 text-2xl shadow-lg">+</span>
+                  Adicionar
+                </button>
+                <button onClick={() => scrollToSection("summary-section")} className="flex flex-col items-center gap-1 hover:text-white">
+                  <span className="text-lg">📊</span>
+                  Relatórios
+                </button>
+                <button onClick={() => scrollToSection("expenses-section")} className="flex flex-col items-center gap-1 hover:text-white">
+                  <span className="text-lg">💳</span>
+                  Gastos
+                </button>
+                <button onClick={login} className="flex flex-col items-center gap-1 hover:text-white">
+                  <span className="text-lg">👤</span>
+                  Perfil
                 </button>
               </div>
 
               {fabOpen && (
-                <div className="mt-3">
+                <div className="mt-3 rounded-2xl bg-white/5 p-3">
+                  <div className="mb-2 flex gap-2 rounded-full bg-white/10 p-1 text-sm font-bold">
+                    <button
+                      onClick={() => setTab("expense")}
+                      className={"flex-1 rounded-full px-3 py-1 " + (tab === "expense" ? "bg-white text-slate-900" : "text-white/80")}
+                    >
+                      Gasto
+                    </button>
+                    <button
+                      onClick={() => setTab("income")}
+                      className={"flex-1 rounded-full px-3 py-1 " + (tab === "income" ? "bg-white text-slate-900" : "text-white/80")}
+                    >
+                      Entrada
+                    </button>
+                  </div>
+
                   {tab === "expense" ? (
                     <form className="grid gap-2 sm:grid-cols-2" onSubmit={handleExpense}>
                       <Input name="label" placeholder="Descrição do gasto" required />
