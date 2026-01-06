@@ -3,501 +3,61 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Finc | Controle Financeiro</title>
+  <title>Finc v1.1 | Controle Financeiro</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Manrope', 'system-ui', 'sans-serif'],
+            display: ['Playfair Display', 'serif'],
+          },
+          colors: {
+            primary: '#7c3aed',
+            accent: '#f97316',
+            mint: '#22c55e',
+            rose: '#f43f5e',
+          },
+        },
+      },
+    };
+  </script>
   <style>
-    :root {
-      --bg: #0f172a;
-      --card: #121c35;
-      --muted: #94a3b8;
-      --accent: #f97316;
-      --accent-2: #f43f5e;
-      --accent-3: #22d3ee;
-      --surface: rgba(255, 255, 255, 0.06);
-      --radius: 18px;
-      --shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-      --yellow: #f1c40f;
-      --green: #22c55e;
-      --orange: #fb923c;
-      --pink: #ec4899;
-      --border: rgba(255, 255, 255, 0.08);
-    }
-
-    * { box-sizing: border-box; }
-
     body {
-      margin: 0;
-      font-family: "Manrope", system-ui, -apple-system, sans-serif;
-      background: radial-gradient(circle at 20% 20%, rgba(244, 63, 94, 0.16), transparent 30%),
-                  radial-gradient(circle at 80% 0%, rgba(79, 70, 229, 0.2), transparent 25%),
-                  var(--bg);
-      color: #e2e8f0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 18px 14px 28px;
+      background: radial-gradient(circle at 20% 20%, rgba(244, 63, 94, 0.12), transparent 35%),
+                  radial-gradient(circle at 80% 0%, rgba(124, 58, 237, 0.18), transparent 30%),
+                  #0f172a;
     }
-
-    .app {
-      width: min(520px, 100%);
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .hero {
-      position: relative;
-      background: linear-gradient(135deg, #f97316, #ec4899);
-      padding: 18px;
-      border-radius: calc(var(--radius) + 6px);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      width: 200px;
-      height: 200px;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 60%);
-      top: -60px;
-      right: -60px;
-      rotate: -10deg;
-    }
-
-    .hero-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero h1 {
-      margin: 4px 0 0;
-      font-size: 26px;
-      letter-spacing: -0.4px;
-      font-family: "Playfair Display", "Times New Roman", serif;
-    }
-
-    .month-pill {
-      background: rgba(255, 255, 255, 0.18);
-      color: white;
-      padding: 8px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.26);
-      font-weight: 700;
-      font-size: 12px;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-
-    .hero-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 16px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero-card {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: 14px;
-      padding: 10px 12px;
-      backdrop-filter: blur(6px);
-    }
-
-    .label {
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 12px;
-      margin-bottom: 6px;
-    }
-
-    .value {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 12px;
-      background: var(--card);
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-    }
-
-    .pill small {
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-size: 11px;
-    }
-
-    .pill strong { font-size: 16px; }
-
-    .toolbar {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 10px;
-      align-items: center;
-    }
-
-    .toolbar select, .toolbar button {
-      width: 100%;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      padding: 10px 12px;
-      font-weight: 700;
-      background: var(--card);
-      color: #e2e8f0;
-      cursor: pointer;
-    }
-
-    .toolbar button.primary { background: var(--accent); color: #0f172a; border: none; }
-    .toolbar button.ghost { background: var(--surface); }
-
-    .cards { display: grid; gap: 12px; }
-
-    .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .card-title {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: -0.2px;
-    }
-
-    .chip {
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      color: #0b1225;
-      background: #e2e8f0;
-      font-weight: 700;
-    }
-
-    .list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: center;
-      background: var(--surface);
-      border-radius: 12px;
-      padding: 12px;
-      border: 1px solid var(--border);
-    }
-
-    .row h4 { margin: 0; font-size: 15px; letter-spacing: -0.2px; }
-    .row small { color: var(--muted); display: block; margin-top: 4px; font-size: 12px; }
-    .row strong { font-size: 15px; }
-
-    .progress {
-      position: relative;
-      width: 100%;
-      height: 7px;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 999px;
-      overflow: hidden;
-      margin-top: 10px;
-    }
-
-    .progress span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; }
-
-    .chart-card { display: grid; gap: 12px; }
-
-    .chart-wrapper {
-      position: relative;
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 14px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-    }
-
-    .chart-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .chart-legend {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 10px;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 10px;
-      border-radius: 12px;
-    }
-
-    .dot { width: 12px; height: 12px; border-radius: 50%; }
-
-    .expense-table { display: grid; gap: 8px; }
-
-    .expense-row {
-      display: grid;
-      grid-template-columns: 22px 1fr 90px 80px 80px 32px;
-      align-items: center;
-      gap: 10px;
-      background: var(--surface);
-      padding: 10px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-    }
-
-    .expense-row input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--accent);
-      cursor: pointer;
-    }
-
-    .expense-row .badge {
-      padding: 6px 8px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 12px;
-      text-align: center;
-      color: #0f172a;
-    }
-
-    .expense-row span { font-size: 14px; color: #e2e8f0; }
-
-    .expense-footer {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px;
-      color: var(--muted);
-      font-weight: 700;
-    }
-
-    .grid-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-    form.inline-form {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    input, select, button, textarea {
-      font-family: inherit;
-    }
-
-    .input {
-      width: 100%;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      padding: 10px 12px;
-      color: #e2e8f0;
-      font-weight: 600;
-    }
-
-    .input:focus { outline: 2px solid var(--accent); }
-
-    .btn {
-      border: none;
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-weight: 800;
-      cursor: pointer;
-      background: var(--accent);
-      color: #0f172a;
-    }
-
-    .btn.secondary { background: var(--surface); color: #e2e8f0; border: 1px solid var(--border); }
-
-    .icon-btn {
-      width: 32px;
-      height: 32px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 10px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: #e2e8f0;
-      cursor: pointer;
-    }
-
-    @media (max-width: 560px) {
-      .hero-grid { grid-template-columns: repeat(2, 1fr); }
-      .grid-two { grid-template-columns: 1fr; }
-      .expense-row { grid-template-columns: 22px 1fr 80px 70px 70px 32px; }
-      .toolbar { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
-    }
-
-    @media print {
-      body { background: white; color: #0f172a; }
-      .card, .hero, .toolbar, .pill, .chip { box-shadow: none; background: white; border: 1px solid #ccc; }
-      .app { width: 100%; padding: 0; }
-      button, select, input, .icon-btn { display: none !important; }
+    .glass {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
     }
   </style>
 </head>
-<body>
-  <main class="app">
-    <section class="hero">
-      <div class="hero-top">
-        <div>
-          <div class="month-pill" id="month-label">Maio 2026</div>
-          <h1>Controle financeiro móvel</h1>
-        </div>
-        <div class="pill">
-          <small>Saldo</small>
-          <strong id="balance-label">R$ 0,00</strong>
-        </div>
-      </div>
-      <div class="hero-grid">
-        <div class="hero-card">
-          <div class="label">Entradas</div>
-          <p class="value" id="income-total">R$ 0,00</p>
-        </div>
-        <div class="hero-card">
-          <div class="label">Gasto real</div>
-          <p class="value" id="real-spent">R$ 0,00</p>
-        </div>
-        <div class="hero-card">
-          <div class="label">Orçado</div>
-          <p class="value" id="budget-total">R$ 0,00</p>
-        </div>
-      </div>
-    </section>
+<body class="text-slate-100 flex justify-center min-h-screen">
+  <div id="root" class="w-full max-w-3xl px-4 py-6"></div>
 
-    <section class="toolbar">
-      <select id="month-select" class="input"></select>
-      <button id="new-month" class="toolbar button primary">+ Novo mês</button>
-      <button id="export-csv" class="toolbar button ghost">Exportar CSV</button>
-      <button id="export-pdf" class="toolbar button ghost">Exportar PDF</button>
-    </section>
-
-    <section class="cards grid-two">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Entradas</h3>
-          <span class="chip">Cadastro rápido</span>
-        </div>
-        <form id="income-form" class="inline-form">
-          <input type="hidden" id="income-index" value="-1" />
-          <input class="input" id="income-desc" placeholder="Descrição" required />
-          <input class="input" id="income-value" type="number" placeholder="Valor" min="0" step="10" required />
-          <button class="btn" type="submit" id="income-submit">Salvar</button>
-          <button class="btn secondary" type="button" id="income-clear">Limpar</button>
-        </form>
-        <ul class="list" id="income-list"></ul>
-      </div>
-
-      <div class="card chart-card">
-        <div class="chart-meta">
-          <h3 class="card-title">Distribuição de gastos</h3>
-          <span class="chip">Visão mensal</span>
-        </div>
-        <div class="chart-wrapper">
-          <canvas id="donut-chart" height="260"></canvas>
-        </div>
-        <div class="chart-legend" id="chart-legend"></div>
-      </div>
-    </section>
-
-    <section class="cards">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Categorias (orçado x real)</h3>
-          <span class="chip">Ajuste rápido</span>
-        </div>
-        <ul class="list" id="budget-list"></ul>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Gastos detalhados</h3>
-          <span class="chip">Checklist</span>
-        </div>
-        <form id="expense-form" class="inline-form">
-          <input type="hidden" id="expense-index" value="-1" />
-          <input class="input" id="expense-desc" placeholder="Descrição" required />
-          <select class="input" id="expense-category"></select>
-          <input class="input" id="expense-planned" type="number" min="0" step="10" placeholder="Orçado" required />
-          <input class="input" id="expense-actual" type="number" min="0" step="10" placeholder="Real" required />
-          <label style="display:flex;align-items:center;gap:8px;">
-            <input type="checkbox" id="expense-paid" />
-            <span>Pago</span>
-          </label>
-          <button class="btn" type="submit" id="expense-submit">Salvar</button>
-          <button class="btn secondary" type="button" id="expense-clear">Limpar</button>
-        </form>
-        <div class="expense-table" id="expense-table"></div>
-        <div class="expense-footer">
-          <span>Total orçado</span>
-          <span id="expense-budget-total">R$ 0,00</span>
-        </div>
-        <div class="expense-footer">
-          <span>Total real</span>
-          <span id="expense-real-total">R$ 0,00</span>
-        </div>
-      </div>
-    </section>
-  </main>
-
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    const palette = ["#8b5cf6", "#f97316", "#22c55e", "#ec4899", "#ef4444", "#38bdf8", "#f59e0b", "#10b981"];
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo, useRef } = React;
+
+    const palette = ["#7c3aed", "#f97316", "#22c55e", "#ec4899", "#06b6d4", "#f59e0b", "#ef4444", "#8b5cf6"];
 
     const defaultMonth = {
       label: "Maio 2026",
       incomes: [
         { label: "Salário 1", value: 6000 },
         { label: "Salário 2", value: 3000 },
-        { label: "Outros", value: 900 }
-      ],
-      categories: [
-        { label: "Cartão", planned: 1200, color: "#8b5cf6" },
-        { label: "Contas fixas", planned: 900, color: "#f97316" },
-        { label: "Uso pessoal", planned: 400, color: "#22c55e" },
-        { label: "Investimento", planned: 500, color: "#ec4899" },
-        { label: "Emergência", planned: 100, color: "#ef4444" }
+        { label: "Outros", value: 900 },
       ],
       expenses: [
         { label: "Cartão (fechamento)", category: "Cartão", planned: 1200, actual: 1400, paid: true },
@@ -505,372 +65,406 @@
         { label: "Streaming", category: "Uso pessoal", planned: 90, actual: 120, paid: false },
         { label: "Almoço fora", category: "Uso pessoal", planned: 120, actual: 140, paid: false },
         { label: "Investimento", category: "Investimento", planned: 500, actual: 500, paid: true },
-        { label: "Reserva emergência", category: "Emergência", planned: 0, actual: 100, paid: false }
-      ]
+        { label: "Reserva emergência", category: "Emergência", planned: 0, actual: 100, paid: false },
+      ],
+      categories: [
+        { label: "Cartão", planned: 1200, color: "#7c3aed" },
+        { label: "Contas fixas", planned: 900, color: "#f97316" },
+        { label: "Uso pessoal", planned: 400, color: "#22c55e" },
+        { label: "Investimento", planned: 500, color: "#ec4899" },
+        { label: "Emergência", planned: 100, color: "#06b6d4" },
+      ],
     };
 
     const loadState = () => {
       try {
-        const saved = localStorage.getItem("finc-data");
+        const saved = localStorage.getItem("finc-v1");
         if (saved) return JSON.parse(saved);
       } catch (err) {
-        console.warn("Falha ao ler localStorage", err);
+        console.warn("LocalStorage não disponível", err);
       }
       return { currentMonth: "2026-05", months: { "2026-05": defaultMonth } };
     };
 
-    let state = loadState();
-
-    const persist = () => {
-      localStorage.setItem("finc-data", JSON.stringify(state));
-    };
-
     const currency = (value) =>
-      value.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 0 });
+      (Number(value) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 0 });
 
     const sum = (items, key) => items.reduce((acc, item) => acc + (Number(item[key]) || 0), 0);
 
-    const monthData = () => state.months[state.currentMonth];
+    const ChartDonut = ({ data, labels, colors }) => {
+      const ref = useRef(null);
+      const chartRef = useRef(null);
 
-    const categoryActual = (categoryLabel) => {
-      return sum(monthData().expenses.filter((e) => e.category === categoryLabel), "actual");
-    };
-
-    const renderHeader = () => {
-      const data = monthData();
-      document.getElementById("month-label").textContent = data.label;
-      const incomeTotal = sum(data.incomes, "value");
-      const plannedTotal = sum(data.categories, "planned");
-      const realTotal = sum(data.expenses, "actual");
-      document.getElementById("income-total").textContent = currency(incomeTotal);
-      document.getElementById("budget-total").textContent = currency(plannedTotal);
-      document.getElementById("real-spent").textContent = currency(realTotal);
-      document.getElementById("balance-label").textContent = currency(incomeTotal - realTotal);
-    };
-
-    const renderMonthSelector = () => {
-      const select = document.getElementById("month-select");
-      select.innerHTML = "";
-      Object.entries(state.months).forEach(([key, data]) => {
-        const option = document.createElement("option");
-        option.value = key;
-        option.textContent = data.label;
-        select.appendChild(option);
-      });
-      select.value = state.currentMonth;
-    };
-
-    const renderIncomes = () => {
-      const container = document.getElementById("income-list");
-      container.innerHTML = "";
-      monthData().incomes.forEach((income, idx) => {
-        const li = document.createElement("li");
-        li.className = "row";
-        li.innerHTML = `
-          <div>
-            <h4>${income.label}</h4>
-            <small>Entrada</small>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <strong>${currency(income.value)}</strong>
-            <button class="icon-btn" aria-label="Editar entrada" data-income="${idx}">Edit</button>
-          </div>
-        `;
-        container.appendChild(li);
-      });
-      container.querySelectorAll("[data-income]").forEach((btn) => {
-        btn.addEventListener("click", (event) => {
-          const idx = Number(event.currentTarget.dataset.income);
-          const income = monthData().incomes[idx];
-          document.getElementById("income-index").value = idx;
-          document.getElementById("income-desc").value = income.label;
-          document.getElementById("income-value").value = income.value;
-          document.getElementById("income-submit").textContent = "Atualizar";
+      useEffect(() => {
+        if (!ref.current) return;
+        if (chartRef.current) chartRef.current.destroy();
+        chartRef.current = new Chart(ref.current, {
+          type: "doughnut",
+          data: {
+            labels,
+            datasets: [{ data, backgroundColor: colors, borderWidth: 0, hoverOffset: 8, cutout: "65%" }],
+          },
+          options: {
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: "#0f172a",
+                padding: 10,
+                callbacks: { label: (ctx) => `${ctx.label}: ${currency(ctx.raw)}` },
+              },
+            },
+          },
         });
-      });
+        return () => chartRef.current?.destroy();
+      }, [data, labels, colors]);
+
+      return <canvas ref={ref} height="280" />;
     };
 
-    const renderBudgets = () => {
-      const container = document.getElementById("budget-list");
-      container.innerHTML = "";
-      const plannedTotal = sum(monthData().categories, "planned");
-      monthData().categories.forEach((category, idx) => {
-        const actual = categoryActual(category.label);
-        const ratio = category.planned === 0 ? 0 : Math.min(actual / category.planned, 1.5);
-        const li = document.createElement("li");
-        li.className = "row";
-        li.innerHTML = `
-          <div>
-            <h4>${category.label}</h4>
-            <small>Orçado ${currency(category.planned)} · Real ${currency(actual)}</small>
-            <div class="progress"><span style="background:${category.color}; width:${Math.min(ratio * 100, 150)}%"></span></div>
-          </div>
-          <div style="display:grid;gap:6px;justify-items:end;">
-            <input type="number" class="input" style="width:110px;" value="${category.planned}" min="0" step="10" data-category="${idx}" aria-label="Orçado para ${category.label}" />
-            <strong style="color:${ratio > 1 ? 'var(--yellow)' : 'var(--green)'}">${plannedTotal ? ((actual / plannedTotal) * 100).toFixed(0) : 0}%</strong>
-          </div>
-        `;
-        container.appendChild(li);
-      });
-
-      container.querySelectorAll("input[data-category]").forEach((input) => {
-        input.addEventListener("change", (event) => {
-          const idx = Number(event.target.dataset.category);
-          monthData().categories[idx].planned = Number(event.target.value) || 0;
-          persist();
-          renderHeader();
-          renderBudgets();
-        });
-      });
-    };
-
-    const renderExpenses = () => {
-      const container = document.getElementById("expense-table");
-      container.innerHTML = "";
-      const budgetTotal = sum(monthData().expenses, "planned");
-      const realTotal = sum(monthData().expenses, "actual");
-      document.getElementById("expense-budget-total").textContent = currency(budgetTotal);
-      document.getElementById("expense-real-total").textContent = currency(realTotal);
-
-      const badgeColor = (category) => {
-        const match = monthData().categories.find((c) => c.label === category);
-        return match ? match.color : "#38bdf8";
-      };
-
-      monthData().expenses.forEach((expense, idx) => {
-        const row = document.createElement("div");
-        row.className = "expense-row";
-        row.innerHTML = `
-          <input type="checkbox" ${expense.paid ? "checked" : ""} data-id="${idx}" aria-label="Pago" />
-          <span>${expense.label}</span>
-          <span class="badge" style="background:${badgeColor(expense.category)}; color:#0f172a">${expense.category}</span>
-          <span>${currency(expense.planned)}</span>
-          <span style="text-align:right">${currency(expense.actual)}</span>
-          <button class="icon-btn" aria-label="Editar gasto" data-expense="${idx}">Edit</button>
-        `;
-        container.appendChild(row);
-      });
-
-      container.querySelectorAll("input[type=checkbox]").forEach((checkbox) => {
-        checkbox.addEventListener("change", (event) => {
-          const id = Number(event.target.dataset.id);
-          monthData().expenses[id].paid = event.target.checked;
-          persist();
-        });
-      });
-
-      container.querySelectorAll("[data-expense]").forEach((btn) => {
-        btn.addEventListener("click", (event) => {
-          const idx = Number(event.currentTarget.dataset.expense);
-          const expense = monthData().expenses[idx];
-          document.getElementById("expense-index").value = idx;
-          document.getElementById("expense-desc").value = expense.label;
-          document.getElementById("expense-category").value = expense.category;
-          document.getElementById("expense-planned").value = expense.planned;
-          document.getElementById("expense-actual").value = expense.actual;
-          document.getElementById("expense-paid").checked = expense.paid;
-          document.getElementById("expense-submit").textContent = "Atualizar";
-        });
-      });
-    };
-
-    const renderLegend = () => {
-      const container = document.getElementById("chart-legend");
-      container.innerHTML = "";
-      const total = sum(monthData().expenses, "actual");
-      monthData().categories.forEach((category) => {
-        const actual = categoryActual(category.label);
-        const item = document.createElement("div");
-        item.className = "legend-item";
-        item.innerHTML = `
-          <span class="dot" style="background:${category.color}"></span>
-          <div>
-            <strong>${category.label}</strong><br />
-            <small>${currency(actual)} · ${total ? ((actual / total) * 100).toFixed(0) : 0}%</small>
-          </div>
-        `;
-        container.appendChild(item);
-      });
-    };
-
-    let donutChart;
-    const renderChart = () => {
-      const ctx = document.getElementById("donut-chart");
-      const totals = monthData().categories.map((c) => categoryActual(c.label));
-      const data = {
-        labels: monthData().categories.map((c) => c.label),
-        datasets: [
-          {
-            data: totals,
-            backgroundColor: monthData().categories.map((c) => c.color),
-            borderWidth: 0,
-            hoverOffset: 8,
-            cutout: "65%"
-          }
-        ]
-      };
-
-      if (donutChart) donutChart.destroy();
-
-      donutChart = new Chart(ctx, {
-        type: "doughnut",
-        data,
-        options: {
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: "#0f172a",
-              padding: 10,
-              callbacks: {
-                label: (context) => `${context.label}: ${currency(context.raw)}`
-              }
-            }
-          }
+    const Input = (props) => (
+      <input
+        {...props}
+        className={
+          "w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-white placeholder-white/50 focus:border-accent focus:ring-2 focus:ring-accent/60 " +
+          (props.className || "")
         }
-      });
-    };
+      />
+    );
 
-    const refreshUI = () => {
-      renderHeader();
-      renderMonthSelector();
-      renderIncomes();
-      renderBudgets();
-      renderExpenses();
-      renderLegend();
-      renderChart();
-      populateCategorySelect();
-      resetFormsLabels();
-    };
+    const Select = ({ options, ...rest }) => (
+      <select
+        {...rest}
+        className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-white focus:border-accent focus:ring-2 focus:ring-accent/60"
+      >
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value} className="bg-slate-900">
+            {opt.label}
+          </option>
+        ))}
+      </select>
+    );
 
-    const populateCategorySelect = () => {
-      const select = document.getElementById("expense-category");
-      select.innerHTML = "";
-      monthData().categories.forEach((category) => {
-        const option = document.createElement("option");
-        option.value = category.label;
-        option.textContent = category.label;
-        select.appendChild(option);
-      });
-    };
+    const App = () => {
+      const [state, setState] = useState(loadState);
+      const [tab, setTab] = useState("expense"); // expense | income
+      const [fabOpen, setFabOpen] = useState(false);
 
-    const resetFormsLabels = () => {
-      document.getElementById("income-submit").textContent = "Salvar";
-      document.getElementById("expense-submit").textContent = "Salvar";
-    };
+      useEffect(() => {
+        localStorage.setItem("finc-v1", JSON.stringify(state));
+      }, [state]);
 
-    const addOrUpdateIncome = (event) => {
-      event.preventDefault();
-      const idx = Number(document.getElementById("income-index").value);
-      const label = document.getElementById("income-desc").value.trim();
-      const value = Number(document.getElementById("income-value").value);
-      if (!label || Number.isNaN(value)) return;
-      if (idx >= 0) {
-        monthData().incomes[idx] = { label, value };
-      } else {
-        monthData().incomes.push({ label, value });
-      }
-      persist();
-      document.getElementById("income-form").reset();
-      document.getElementById("income-index").value = -1;
-      refreshUI();
-    };
+      const month = state.months[state.currentMonth];
 
-    const addOrUpdateExpense = (event) => {
-      event.preventDefault();
-      const idx = Number(document.getElementById("expense-index").value);
-      const label = document.getElementById("expense-desc").value.trim();
-      const category = document.getElementById("expense-category").value;
-      const planned = Number(document.getElementById("expense-planned").value);
-      const actual = Number(document.getElementById("expense-actual").value);
-      const paid = document.getElementById("expense-paid").checked;
-      if (!label || Number.isNaN(planned) || Number.isNaN(actual)) return;
+      const totals = useMemo(() => {
+        const incomes = sum(month.incomes, "value");
+        const expenses = sum(month.expenses, "actual");
+        const planned = sum(month.categories, "planned");
+        return { incomes, expenses, planned, balance: incomes - expenses };
+      }, [month]);
 
-      if (!monthData().categories.find((c) => c.label === category)) {
-        monthData().categories.push({
-          label: category,
-          planned,
-          color: palette[(monthData().categories.length + 1) % palette.length]
+      const groupedCategories = useMemo(() => {
+        const base = month.categories.map((c, i) => ({
+          label: c.label,
+          planned: Number(c.planned) || 0,
+          color: c.color || palette[i % palette.length],
+          actual: 0,
+        }));
+        const byLabel = Object.fromEntries(base.map((c) => [c.label, c]));
+        month.expenses.forEach((e) => {
+          if (!byLabel[e.category]) {
+            const newCat = {
+              label: e.category,
+              planned: 0,
+              color: palette[(Object.keys(byLabel).length + 1) % palette.length],
+              actual: 0,
+            };
+            byLabel[e.category] = newCat;
+          }
+          byLabel[e.category].actual += Number(e.actual) || 0;
         });
-      }
+        return Object.values(byLabel);
+      }, [month]);
 
-      const entry = { label, category, planned, actual, paid };
-      if (idx >= 0) {
-        monthData().expenses[idx] = entry;
-      } else {
-        monthData().expenses.push(entry);
-      }
-      persist();
-      document.getElementById("expense-form").reset();
-      document.getElementById("expense-index").value = -1;
-      refreshUI();
+      const handleIncome = (event) => {
+        event.preventDefault();
+        const form = new FormData(event.target);
+        const label = form.get("label").trim();
+        const value = Number(form.get("value")) || 0;
+        if (!label) return;
+        setState((prev) => {
+          const next = { ...prev };
+          const m = { ...next.months[next.currentMonth] };
+          m.incomes = [...m.incomes, { label, value }];
+          next.months[next.currentMonth] = m;
+          return next;
+        });
+        event.target.reset();
+        setFabOpen(false);
+      };
+
+      const handleExpense = (event) => {
+        event.preventDefault();
+        const form = new FormData(event.target);
+        const label = form.get("label").trim();
+        const category = form.get("category").trim() || "Outro";
+        const planned = Number(form.get("planned")) || 0;
+        const actual = Number(form.get("actual")) || 0;
+        const paid = form.get("paid") === "on";
+        if (!label) return;
+        setState((prev) => {
+          const next = { ...prev };
+          const m = { ...next.months[next.currentMonth] };
+          m.expenses = [...m.expenses, { label, category, planned, actual, paid }];
+          next.months[next.currentMonth] = m;
+          return next;
+        });
+        event.target.reset();
+        setFabOpen(false);
+      };
+
+      const togglePaid = (idx) => {
+        setState((prev) => {
+          const next = { ...prev };
+          const m = { ...next.months[next.currentMonth] };
+          m.expenses = m.expenses.map((e, i) => (i === idx ? { ...e, paid: !e.paid } : e));
+          next.months[next.currentMonth] = m;
+          return next;
+        });
+      };
+
+      const newMonth = () => {
+        const label = prompt("Nome do mês (ex: Junho 2026)");
+        if (!label) return;
+        const key = Date.now().toString();
+        setState((prev) => ({
+          ...prev,
+          currentMonth: key,
+          months: {
+            ...prev.months,
+            [key]: { ...defaultMonth, label, incomes: [], expenses: [], categories: defaultMonth.categories },
+          },
+        }));
+      };
+
+      const exportCSV = () => {
+        const lines = [];
+        lines.push(`Mês,${month.label}`);
+        lines.push("");
+        lines.push("Entradas");
+        lines.push("Descrição,Valor");
+        month.incomes.forEach((i) => lines.push(`${i.label},${i.value}`));
+        lines.push("");
+        lines.push("Categorias (orçado x real)");
+        lines.push("Categoria,Orçado,Real");
+        groupedCategories.forEach((c) => lines.push(`${c.label},${c.planned},${c.actual}`));
+        lines.push("");
+        lines.push("Gastos detalhados");
+        lines.push("Descrição,Categoria,Orçado,Real,Pago");
+        month.expenses.forEach((e) => lines.push(`${e.label},${e.category},${e.planned},${e.actual},${e.paid ? "Sim" : "Não"}`));
+        const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `${month.label.replace(/\s+/g, "_")}.csv`;
+        link.click();
+      };
+
+      const exportPDF = () => window.print();
+
+      return (
+        <div className="space-y-4 pb-20">
+          <header className="glass rounded-2xl p-4 shadow-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.15em] text-white/60">Finc v1.1</p>
+                <h1 className="text-2xl font-display font-semibold leading-tight">Dashboard financeiro</h1>
+              </div>
+              <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white">Saldo: {currency(totals.balance)}</span>
+            </div>
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+              <div className="glass rounded-xl p-3">
+                <p className="text-xs uppercase tracking-[0.15em] text-white/60">Entradas</p>
+                <p className="text-xl font-bold text-mint">{currency(totals.incomes)}</p>
+              </div>
+              <div className="glass rounded-xl p-3">
+                <p className="text-xs uppercase tracking-[0.15em] text-white/60">Gasto real</p>
+                <p className="text-xl font-bold text-rose">{currency(totals.expenses)}</p>
+              </div>
+              <div className="glass rounded-xl p-3">
+                <p className="text-xs uppercase tracking-[0.15em] text-white/60">Orçado</p>
+                <p className="text-xl font-bold text-accent">{currency(totals.planned)}</p>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-2 sm:grid-cols-4">
+              <Select
+                options={Object.entries(state.months).map(([key, m]) => ({ value: key, label: m.label }))}
+                value={state.currentMonth}
+                onChange={(e) => setState((prev) => ({ ...prev, currentMonth: e.target.value }))}
+              />
+              <button onClick={newMonth} className="glass rounded-xl px-3 py-2 text-sm font-bold text-white hover:bg-white/10">
+                + Novo mês
+              </button>
+              <button onClick={exportCSV} className="glass rounded-xl px-3 py-2 text-sm font-bold text-white hover:bg-white/10">
+                Exportar CSV
+              </button>
+              <button onClick={exportPDF} className="glass rounded-xl px-3 py-2 text-sm font-bold text-white hover:bg-white/10">
+                Exportar PDF
+              </button>
+            </div>
+          </header>
+
+          <section className="grid gap-4 md:grid-cols-2">
+            <div className="glass rounded-2xl p-4 shadow-xl">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-bold">Distribuição de gastos</h2>
+                <span className="text-xs font-bold text-white/70">Visão mensal</span>
+              </div>
+              <div className="mt-4">
+                <ChartDonut
+                  data={groupedCategories.map((c) => c.actual)}
+                  labels={groupedCategories.map((c) => c.label)}
+                  colors={groupedCategories.map((c) => c.color)}
+                />
+              </div>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {groupedCategories.map((c) => (
+                  <div key={c.label} className="flex items-center gap-3 rounded-xl bg-white/5 px-3 py-2">
+                    <span className="h-3 w-3 rounded-full" style={{ background: c.color }} />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold">{c.label}</p>
+                      <p className="text-xs text-white/60">
+                        {currency(c.actual)} · {totals.expenses ? Math.round((c.actual / totals.expenses) * 100) : 0}%
+                      </p>
+                    </div>
+                    <span className="text-xs font-bold text-white/70">{currency(c.planned)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="glass rounded-2xl p-4 shadow-xl space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-bold">Resumo rápido</h2>
+                <span className="text-xs font-bold text-white/70">Checklist</span>
+              </div>
+              <div className="space-y-2">
+                {month.expenses.map((e, idx) => (
+                  <div key={idx} className="flex items-center gap-3 rounded-xl bg-white/5 px-3 py-2">
+                    <input
+                      type="checkbox"
+                      checked={e.paid}
+                      onChange={() => togglePaid(idx)}
+                      className="h-5 w-5 rounded border-white/30 bg-transparent text-accent focus:ring-accent"
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold">{e.label}</p>
+                      <p className="text-xs text-white/60">{e.category} · Orçado {currency(e.planned)}</p>
+                    </div>
+                    <span className="text-sm font-bold text-white/80">{currency(e.actual)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="glass rounded-2xl p-4 shadow-xl">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold">Entradas</h2>
+              <span className="text-xs font-bold text-white/70">Total {currency(totals.incomes)}</span>
+            </div>
+            <div className="mt-2 space-y-2">
+              {month.incomes.map((inc, idx) => (
+                <div key={idx} className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2">
+                  <div>
+                    <p className="text-sm font-semibold">{inc.label}</p>
+                    <p className="text-xs text-white/60">Entrada</p>
+                  </div>
+                  <span className="text-sm font-bold text-mint">{currency(inc.value)}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="glass rounded-2xl p-4 shadow-xl">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold">Gastos detalhados</h2>
+              <span className="text-xs font-bold text-white/70">Total {currency(totals.expenses)}</span>
+            </div>
+            <div className="mt-2 space-y-2">
+              {month.expenses.map((exp, idx) => (
+                <div key={idx} className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2">
+                  <div>
+                    <p className="text-sm font-semibold">{exp.label}</p>
+                    <p className="text-xs text-white/60">{exp.category}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-white/80">{currency(exp.actual)}</p>
+                    <p className="text-xs text-white/50">Orçado {currency(exp.planned)}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {fabOpen && (
+            <div className="fixed inset-0 z-20 bg-black/50" onClick={() => setFabOpen(false)}></div>
+          )}
+
+          <div className={"fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-w-3xl px-4 pb-4 transition " + (fabOpen ? "translate-y-0" : "translate-y-[72px]")}>
+            <div className="glass rounded-2xl p-4 shadow-2xl">
+              <div className="flex items-center justify-between">
+                <div className="flex gap-2 rounded-full bg-white/10 p-1">
+                  <button
+                    onClick={() => setTab("expense")}
+                    className={"rounded-full px-3 py-1 text-sm font-bold " + (tab === "expense" ? "bg-white text-slate-900" : "text-white/80")}
+                  >
+                    Gasto
+                  </button>
+                  <button
+                    onClick={() => setTab("income")}
+                    className={"rounded-full px-3 py-1 text-sm font-bold " + (tab === "income" ? "bg-white text-slate-900" : "text-white/80")}
+                  >
+                    Entrada
+                  </button>
+                </div>
+                <button onClick={() => setFabOpen((v) => !v)} className="grid h-12 w-12 place-items-center rounded-full bg-accent text-slate-900 shadow-lg">
+                  {fabOpen ? "×" : "+"}
+                </button>
+              </div>
+
+              {fabOpen && (
+                <div className="mt-3">
+                  {tab === "expense" ? (
+                    <form className="grid gap-2 sm:grid-cols-2" onSubmit={handleExpense}>
+                      <Input name="label" placeholder="Descrição do gasto" required />
+                      <Input name="category" placeholder="Categoria (ex: Cartão)" />
+                      <Input name="planned" placeholder="Orçado" type="number" min="0" step="10" />
+                      <Input name="actual" placeholder="Real" type="number" min="0" step="10" required />
+                      <label className="flex items-center gap-2 text-sm font-semibold text-white/80">
+                        <input type="checkbox" name="paid" className="h-4 w-4 rounded border-white/40 bg-transparent text-accent focus:ring-accent" />
+                        Pago
+                      </label>
+                      <button className="col-span-full rounded-xl bg-accent px-4 py-2 text-sm font-extrabold text-slate-900 shadow-lg hover:opacity-95">
+                        Salvar gasto
+                      </button>
+                    </form>
+                  ) : (
+                    <form className="grid gap-2 sm:grid-cols-2" onSubmit={handleIncome}>
+                      <Input name="label" placeholder="Descrição da entrada" required />
+                      <Input name="value" placeholder="Valor" type="number" min="0" step="10" required />
+                      <button className="col-span-full rounded-xl bg-mint px-4 py-2 text-sm font-extrabold text-slate-900 shadow-lg hover:opacity-95">
+                        Salvar entrada
+                      </button>
+                    </form>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
     };
 
-    const newMonth = () => {
-      const label = prompt("Nome do mês (ex: Junho 2026)");
-      if (!label) return;
-      const key = `${Date.now()}`;
-      state.months[key] = JSON.parse(JSON.stringify(defaultMonth));
-      state.months[key].label = label;
-      state.months[key].incomes = [];
-      state.months[key].expenses = [];
-      state.currentMonth = key;
-      persist();
-      refreshUI();
-    };
-
-    const exportCSV = () => {
-      const data = monthData();
-      const lines = [];
-      lines.push(`Mês,${data.label}`);
-      lines.push("");
-      lines.push("Entradas");
-      lines.push("Descrição,Valor");
-      data.incomes.forEach((i) => lines.push(`${i.label},${i.value}`));
-      lines.push("");
-      lines.push("Categorias (orçado x real)");
-      lines.push("Categoria,Orçado,Real");
-      data.categories.forEach((c) => lines.push(`${c.label},${c.planned},${categoryActual(c.label)}`));
-      lines.push("");
-      lines.push("Gastos detalhados");
-      lines.push("Descrição,Categoria,Orçado,Real,Pago");
-      data.expenses.forEach((e) => lines.push(`${e.label},${e.category},${e.planned},${e.actual},${e.paid ? "Sim" : "Não"}`));
-
-      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `${data.label.replace(/\\s+/g, "_")}.csv`;
-      link.click();
-    };
-
-    const exportPDF = () => {
-      window.print();
-    };
-
-    document.getElementById("income-form").addEventListener("submit", addOrUpdateIncome);
-    document.getElementById("income-clear").addEventListener("click", () => {
-      document.getElementById("income-form").reset();
-      document.getElementById("income-index").value = -1;
-      resetFormsLabels();
-    });
-
-    document.getElementById("expense-form").addEventListener("submit", addOrUpdateExpense);
-    document.getElementById("expense-clear").addEventListener("click", () => {
-      document.getElementById("expense-form").reset();
-      document.getElementById("expense-index").value = -1;
-      resetFormsLabels();
-    });
-
-    document.getElementById("month-select").addEventListener("change", (event) => {
-      state.currentMonth = event.target.value;
-      persist();
-      refreshUI();
-    });
-
-    document.getElementById("new-month").addEventListener("click", newMonth);
-    document.getElementById("export-csv").addEventListener("click", exportCSV);
-    document.getElementById("export-pdf").addEventListener("click", exportPDF);
-
-    refreshUI();
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
   </script>
 </body>
 </html>
