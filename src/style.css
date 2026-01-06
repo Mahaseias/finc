@@ -1,12 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
+:root{
   color-scheme: dark;
+
+  --bg-0: #081424;
+  --bg-1: #0b1e33;
+
+  --card: rgba(255,255,255,.08);
+  --card-border: rgba(255,255,255,.10);
+
+  --txt: rgba(255,255,255,.92);
+  --muted: rgba(255,255,255,.65);
+
+  /* Paleta “jovem” (referência das imagens) */
+  --c-purple: #7C3AED;
+  --c-orange: #F59E0B;
+  --c-green:  #10B981;
+  --c-red:    #EF4444;
+  --c-pink:   #EC4899;
+  --c-blue:   #3B82F6;
 }
 
-body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+html, body {
+  height: 100%;
+  font-family: Poppins, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+}
+
+body{
+  margin:0;
+  overflow:hidden; /* scroll fica no container interno */
+  background: var(--bg-0);
+  color: var(--txt);
 }

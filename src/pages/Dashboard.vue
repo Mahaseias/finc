@@ -6,6 +6,15 @@ import { state, totals } from '../store/financeStore'
 const canvasRef = ref(null)
 let chart
 
+const COLOR_BY_CATEGORY = {
+  'Cartão': '#7C3AED',
+  'Contas fixas': '#F59E0B',
+  'Emergência': '#EF4444',
+  'Investimento': '#EC4899',
+  'Uso pessoal': '#10B981',
+  'Outros': '#3B82F6',
+}
+
 function computeCategories() {
   const month = new Date().getMonth()
   const year = new Date().getFullYear()
@@ -14,7 +23,10 @@ function computeCategories() {
     return t.type === 'expense' && d.getMonth() === month && d.getFullYear() === year
   })
   const map = new Map()
-  for (const t of monthExpenses) map.set(t.category, (map.get(t.category) || 0) + t.amount)
+  for (const t of monthExpenses) {
+    const cat = t.category || 'Outros'
+    map.set(cat, (map.get(cat) || 0) + t.amount)
+  }
   const labels = [...map.keys()]
   const data = [...map.values()]
   return { labels: labels.length ? labels : ['Sem dados'], data: data.length ? data : [1] }
@@ -22,7 +34,8 @@ function computeCategories() {
 
 function renderChart() {
   const { labels, data } = computeCategories()
-  const palette = ['#7C3AED', '#F59E0B', '#EF4444', '#EC4899', '#10B981', '#3B82F6']
+  const total = data.reduce((a, b) => a + Number(b || 0), 0) || 1
+  const palette = labels.map((lbl) => COLOR_BY_CATEGORY[lbl] || COLOR_BY_CATEGORY['Outros'])
 
   if (chart) chart.destroy()
   chart = new Chart(canvasRef.value, {
@@ -32,16 +45,17 @@ function renderChart() {
       datasets: [
         {
           data,
-          backgroundColor: labels.map((_, i) => palette[i % palette.length]),
+          backgroundColor: palette,
           borderWidth: 2,
-          borderColor: 'rgba(10,18,35,.55)',
-          hoverOffset: 6,
+          borderColor: 'rgba(10,18,35,.65)',
+          hoverOffset: 8,
         },
       ],
     },
     options: {
-      cutout: '72%',
-      animation: { duration: 600 },
+      cutout: '78%',
+      radius: '92%',
+      animation: { duration: 650 },
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -49,7 +63,8 @@ function renderChart() {
           callbacks: {
             label: (ctx) => {
               const v = Number(ctx.raw || 0)
-              return ` ${ctx.label}: R$ ${v.toLocaleString('pt-BR')}`
+              const pct = Math.round((v / total) * 100)
+              return ` ${ctx.label}: R$ ${v.toLocaleString('pt-BR')} (${pct}%)`
             },
           },
         },
@@ -65,25 +80,28 @@ watch(() => state.transactions.length, renderChart)
 <template>
   <div class="space-y-4">
     <div class="grid grid-cols-2 gap-3">
-      <div class="card bg-gradient-to-br from-amber-300/90 to-orange-500/80">
-        <div class="text-white/90 text-xs">Saldo</div>
-        <div class="text-2xl font-bold">R$ {{ totals.balance.toLocaleString('pt-BR') }}</div>
-        <div class="mt-2 text-xs text-white/80">Total</div>
+      <div class="kpi kpi-balance">
+        <div class="kpi-title">Saldo</div>
+        <div class="kpi-value">R$ {{ totals.balance.toLocaleString('pt-BR') }}</div>
+        <div class="kpi-sub">Total</div>
       </div>
-      <div class="card bg-gradient-to-br from-emerald-400/80 to-green-600/70">
-        <div class="text-white/90 text-xs">Receitas</div>
-        <div class="text-2xl font-bold">R$ {{ totals.income.toLocaleString('pt-BR') }}</div>
-        <div class="mt-2 text-xs text-white/80">Entrada</div>
+
+      <div class="kpi kpi-income">
+        <div class="kpi-title">Receitas</div>
+        <div class="kpi-value">R$ {{ totals.income.toLocaleString('pt-BR') }}</div>
+        <div class="kpi-sub">Entrada</div>
       </div>
-      <div class="card bg-gradient-to-br from-rose-500/80 to-red-700/70">
-        <div class="text-white/90 text-xs">Despesas</div>
-        <div class="text-2xl font-bold">R$ {{ totals.expense.toLocaleString('pt-BR') }}</div>
-        <div class="mt-2 text-xs text-white/80">Saída</div>
+
+      <div class="kpi kpi-expense">
+        <div class="kpi-title">Despesas</div>
+        <div class="kpi-value">R$ {{ totals.expense.toLocaleString('pt-BR') }}</div>
+        <div class="kpi-sub">Saída</div>
       </div>
-      <div class="card bg-gradient-to-br from-violet-500/75 to-purple-700/70">
-        <div class="text-white/90 text-xs">Investimentos</div>
-        <div class="text-2xl font-bold">R$ {{ totals.invest.toLocaleString('pt-BR') }}</div>
-        <div class="mt-2 text-xs text-white/80">Aportes</div>
+
+      <div class="kpi kpi-invest">
+        <div class="kpi-title">Investimentos</div>
+        <div class="kpi-value">R$ {{ totals.invest.toLocaleString('pt-BR') }}</div>
+        <div class="kpi-sub">Aportes</div>
       </div>
     </div>
 
@@ -97,8 +115,9 @@ watch(() => state.transactions.length, renderChart)
           <canvas ref="canvasRef"></canvas>
         </div>
         <div class="absolute grid place-items-center">
-          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-300 to-amber-500 grid place-items-center shadow-lg">
-            <span class="text-2xl">💰</span>
+          <div class="centerBadge">
+            <div class="text-xs text-white/70">Gastos</div>
+            <div class="text-lg font-semibold">do mês</div>
           </div>
         </div>
       </div>
@@ -108,7 +127,7 @@ watch(() => state.transactions.length, renderChart)
           :key="lbl"
           class="pill"
         >
-          <span class="dot" :style="{ background: ['#7C3AED','#F59E0B','#EF4444','#EC4899','#10B981','#3B82F6'][i % 6] }"></span>
+          <span class="dot" :style="{ background: (COLOR_BY_CATEGORY[lbl] || COLOR_BY_CATEGORY['Outros']) }"></span>
           <span class="text-xs text-white/80">{{ lbl }}</span>
         </div>
       </div>
@@ -139,24 +158,54 @@ watch(() => state.transactions.length, renderChart)
 </template>
 
 <style scoped>
-.card {
-  border-radius: 1.25rem;
-  padding: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+.kpi{
+  border-radius: 22px;
+  padding: 14px 14px;
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 18px 55px rgba(0,0,0,.30);
+  position: relative;
+  overflow: hidden;
 }
-.pill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.kpi::after{
+  content:"";
+  position:absolute; inset:-40px -40px auto auto;
+  width:140px; height:140px;
+  border-radius:9999px;
+  background: rgba(255,255,255,.16);
+  filter: blur(20px);
+  transform: rotate(20deg);
 }
-.dot {
-  width: 10px;
-  height: 10px;
+.kpi-title{ font-size: 12px; color: rgba(255,255,255,.85); }
+.kpi-value{ margin-top: 6px; font-size: 22px; font-weight: 700; line-height: 1.1; }
+.kpi-sub{ margin-top: 8px; font-size: 12px; color: rgba(255,255,255,.80); }
+
+.kpi-balance{ background: linear-gradient(135deg, rgba(245,158,11,.95), rgba(249,115,22,.75)); color:#1b1b1b; border-color: rgba(255,255,255,.20); }
+.kpi-balance .kpi-title,.kpi-balance .kpi-sub{ color: rgba(0,0,0,.65); }
+
+.kpi-income{ background: linear-gradient(135deg, rgba(16,185,129,.85), rgba(34,197,94,.60)); }
+.kpi-expense{ background: linear-gradient(135deg, rgba(239,68,68,.80), rgba(190,18,60,.60)); }
+.kpi-invest{  background: linear-gradient(135deg, rgba(124,58,237,.78), rgba(147,51,234,.58)); }
+
+.centerBadge{
+  width: 112px;
+  height: 112px;
   border-radius: 9999px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  backdrop-filter: blur(12px);
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.pill{
+  display:flex; align-items:center; gap:8px;
+  padding: 8px 12px;
+  border-radius: 9999px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+}
+.dot{
+  width:10px; height:10px; border-radius:9999px;
 }
 </style>

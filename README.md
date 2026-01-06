@@ -1,6 +1,6 @@
-# FINC v1.4 – Vue + Vite + Tailwind + Chart.js (PWA-ready)
+# FINC v1.5 – Vue + Vite + Tailwind + Chart.js (PWA-ready)
 
-App mobile-first com navegação inferior, cards vibrantes, donut de gastos e dados 100% locais (localStorage). Estrutura Vite + Vue 3, Tailwind, Chart.js e service worker simples para suporte PWA.
+App mobile-first com navegação inferior fixa (header sticky + scroll interno), cards coloridos estilo app jovem, donut premium com legendas em pílulas e dados 100% locais (localStorage). Estrutura Vite + Vue 3, Tailwind, Chart.js e service worker simples para PWA.
 
 ## Requisitos
 - Node 18+
@@ -14,8 +14,8 @@ npm run preview
 ```
 
 ## Estrutura
-- `src/App.vue` – layout mobile com nav inferior (Home/Adicionar/Relatórios/Perfil) e gradientes.
-- `src/pages/Dashboard.vue` – KPI cards + donut “Gastos do mês” + recentes.
+- `src/App.vue` – layout mobile com nav inferior fixo (Home/Adicionar/Relatórios/Perfil), header sticky e scroll interno.
+- `src/pages/Dashboard.vue` – KPI cards coloridos + donut “Gastos do mês” com legendas em pílulas + recentes.
 - `src/pages/Add.vue` – registro rápido (Despesa/Receita/Investimento/Dívida).
 - `src/store/financeStore.js` – estado reativo em `localStorage` (`finance_app_v1`).
 - `public/manifest.webmanifest` + `public/sw.js` – base PWA offline.
