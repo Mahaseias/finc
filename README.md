@@ -1,21 +1,28 @@
-# Finc – Controle Financeiro Mobile
+# FINC v1.4 – Vue + Vite + Tailwind + Chart.js (PWA-ready)
 
-Frontend estático (HTML/CSS/JS) mobile-first para acompanhar entradas, categorias orçadas x reais e checklist de gastos, com gráfico de distribuição mensal.
+App mobile-first com navegação inferior, cards vibrantes, donut de gastos e dados 100% locais (localStorage). Estrutura Vite + Vue 3, Tailwind, Chart.js e service worker simples para suporte PWA.
 
-## v1.2 (HTML estático estilo card vibrante)
-- UI estática em HTML + Tailwind + Lucide (CDN), foco mobile, cards vibrantes e menu inferior com botão flutuante para adicionar.
-- Modal para nova movimentação (Entrada ou Gasto); dados persistem em `localStorage` (`finc_transactions`) e são carregados automaticamente.
-- Sem login; 100% offline/local.
+## Requisitos
+- Node 18+
 
-Como usar:
-- Abra `index.html` no navegador (duplo clique ou servindo via HTTP estático).
-- Clique no botão “+” do menu inferior para registrar entradas ou gastos; os totais são exibidos nos cards.
-- Dados ficam gravados no navegador; use o ícone de lixeira para limpar.
-
-Publicar no GitHub Pages:
+## Instalação e execução
+```bash
+npm install
+npm run dev    # http://localhost:5173
+npm run build  # saída em dist/
+npm run preview
 ```
-git add index.html README.md
-git commit -m "chore: release v1.1 react/tailwind"
-git push -u origin main   # ou master, conforme o repo
+
+## Estrutura
+- `src/App.vue` – layout mobile com nav inferior (Home/Adicionar/Relatórios/Perfil) e gradientes.
+- `src/pages/Dashboard.vue` – KPI cards + donut “Gastos do mês” + recentes.
+- `src/pages/Add.vue` – registro rápido (Despesa/Receita/Investimento/Dívida).
+- `src/store/financeStore.js` – estado reativo em `localStorage` (`finance_app_v1`).
+- `public/manifest.webmanifest` + `public/sw.js` – base PWA offline.
+
+## Deploy no GitHub Pages
+```bash
+npm run build
+# publique o conteúdo de dist/ (ex: gh-pages ou ação automática)
 ```
-No GitHub, Settings > Pages > Source = Deploy from branch, branch = `main`, folder = `/ (root)`.
+No Pages, aponte para a pasta `dist` da branch escolhida.
