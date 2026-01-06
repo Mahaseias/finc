@@ -2,10 +2,11 @@
 
 Frontend estático (HTML/CSS/JS) mobile-first para acompanhar entradas, categorias orçadas x reais e checklist de gastos, com gráfico de distribuição mensal.
 
-## v1.1 (React + Tailwind + Chart.js via CDN)
-- SPA React (CDN + Babel), Tailwind para layout mobile-first e gráfico donut Chart.js.
-- Dados ficam em `localStorage` (`finc-v1`), por mês selecionado.
-- Botão flutuante "+" para adicionar gasto/entrada; seletor/criação de mês, exportar CSV/PDF.
+## v1.2 (Home + menu + cards clicáveis)
+- Landing HOME estilizada com call-to-action e botão mock de login Google (sem backend).
+- Menu fixo de abas leva a HOME, Dashboard, Entradas, Gastos e Resumo (scroll suave).
+- Cards do dashboard levam às seções correspondentes (use os botões do menu).
+- SPA React (CDN + Babel) com Tailwind e Chart.js; dados no `localStorage` (`finc-v1`).
 
 Como usar:
 - Abra `index.html` no navegador (duplo clique ou servindo via HTTP estático).

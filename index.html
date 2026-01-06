@@ -148,6 +148,7 @@
       const [state, setState] = useState(loadState);
       const [tab, setTab] = useState("expense"); // expense | income
       const [fabOpen, setFabOpen] = useState(false);
+      const [view, setView] = useState("home"); // home | dashboard | entries | expenses | summary
 
       useEffect(() => {
         localStorage.setItem("finc-v1", JSON.stringify(state));
@@ -270,29 +271,98 @@
 
       const exportPDF = () => window.print();
 
+      const scrollToSection = (id) => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      };
+
+      const menuItems = [
+        { key: "home", label: "Home", target: "home-section" },
+        { key: "dashboard", label: "Dashboard", target: "dashboard-section" },
+        { key: "entries", label: "Entradas", target: "entries-section" },
+        { key: "expenses", label: "Gastos", target: "expenses-section" },
+        { key: "summary", label: "Resumo", target: "summary-section" },
+      ];
+
+      const login = () => alert("Login com Google (mock) – sem backend configurado.");
+
       return (
-        <div className="space-y-4 pb-20">
-          <header className="glass rounded-2xl p-4 shadow-xl">
+        <div className="space-y-4 pb-28">
+          {/* Home */}
+          <section id="home-section" className="glass rounded-2xl p-6 shadow-2xl bg-gradient-to-br from-primary/30 via-slate-900 to-slate-900">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-white/70">Finc v1.2</p>
+                <h1 className="mt-1 text-3xl font-display font-semibold leading-tight">Seu hub financeiro móvel</h1>
+                <p className="mt-2 text-white/70 text-sm">
+                  Centralize entradas, gastos e categorias. Visual moderno, mobile-first, pronto para salvar no seu navegador.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <button
+                    onClick={() => scrollToSection("dashboard-section")}
+                    className="rounded-xl bg-accent px-4 py-2 text-sm font-extrabold text-slate-900 shadow-lg hover:opacity-95"
+                  >
+                    Abrir dashboard
+                  </button>
+                  <button
+                    onClick={login}
+                    className="flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-sm font-bold text-white shadow-inner hover:bg-white/15"
+                  >
+                    <span>🔐</span> Entrar com Google
+                  </button>
+                </div>
+              </div>
+              <div className="hidden sm:block rounded-2xl bg-white/10 px-4 py-3 text-right">
+                <p className="text-xs text-white/60">Saldo</p>
+                <p className="text-2xl font-extrabold text-mint">{currency(totals.balance)}</p>
+                <p className="text-xs text-white/60">Mês: {month.label}</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Menu */}
+          <nav className="sticky top-2 z-10 glass rounded-2xl p-2 shadow-lg backdrop-blur">
+            <div className="grid grid-cols-5 gap-2 text-sm font-bold">
+              {menuItems.map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => {
+                    setView(item.key);
+                    scrollToSection(item.target);
+                  }}
+                  className={
+                    "rounded-xl px-3 py-2 transition " +
+                    (view === item.key ? "bg-white text-slate-900 shadow" : "text-white/80 hover:bg-white/10")
+                  }
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </nav>
+
+          {/* Dashboard */}
+          <header id="dashboard-section" className="glass rounded-2xl p-4 shadow-xl">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.15em] text-white/60">Finc v1.1</p>
-                <h1 className="text-2xl font-display font-semibold leading-tight">Dashboard financeiro</h1>
+                <p className="text-xs uppercase tracking-[0.15em] text-white/60">Dashboard</p>
+                <h2 className="text-2xl font-display font-semibold leading-tight">Painel financeiro</h2>
               </div>
               <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white">Saldo: {currency(totals.balance)}</span>
             </div>
             <div className="mt-3 grid gap-3 sm:grid-cols-3">
-              <div className="glass rounded-xl p-3">
+              <button onClick={() => scrollToSection("entries-section")} className="glass rounded-xl p-3 text-left hover:bg-white/10 transition">
                 <p className="text-xs uppercase tracking-[0.15em] text-white/60">Entradas</p>
                 <p className="text-xl font-bold text-mint">{currency(totals.incomes)}</p>
-              </div>
-              <div className="glass rounded-xl p-3">
+              </button>
+              <button onClick={() => scrollToSection("expenses-section")} className="glass rounded-xl p-3 text-left hover:bg-white/10 transition">
                 <p className="text-xs uppercase tracking-[0.15em] text-white/60">Gasto real</p>
                 <p className="text-xl font-bold text-rose">{currency(totals.expenses)}</p>
-              </div>
-              <div className="glass rounded-xl p-3">
+              </button>
+              <button onClick={() => scrollToSection("summary-section")} className="glass rounded-xl p-3 text-left hover:bg-white/10 transition">
                 <p className="text-xs uppercase tracking-[0.15em] text-white/60">Orçado</p>
                 <p className="text-xl font-bold text-accent">{currency(totals.planned)}</p>
-              </div>
+              </button>
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-4">
               <Select
@@ -312,7 +382,7 @@
             </div>
           </header>
 
-          <section className="grid gap-4 md:grid-cols-2">
+          <section id="summary-section" className="grid gap-4 md:grid-cols-2">
             <div className="glass rounded-2xl p-4 shadow-xl">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold">Distribuição de gastos</h2>
@@ -366,7 +436,7 @@
             </div>
           </section>
 
-          <section className="glass rounded-2xl p-4 shadow-xl">
+          <section id="entries-section" className="glass rounded-2xl p-4 shadow-xl">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold">Entradas</h2>
               <span className="text-xs font-bold text-white/70">Total {currency(totals.incomes)}</span>
@@ -384,7 +454,7 @@
             </div>
           </section>
 
-          <section className="glass rounded-2xl p-4 shadow-xl">
+          <section id="expenses-section" className="glass rounded-2xl p-4 shadow-xl">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold">Gastos detalhados</h2>
               <span className="text-xs font-bold text-white/70">Total {currency(totals.expenses)}</span>
