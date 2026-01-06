@@ -1,10 +1,12 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { Chart } from 'chart.js/auto'
 import { state, totals } from '../store/financeStore'
 
 const canvasRef = ref(null)
 let chart
+const selectedIndex = ref(null)
+const chartMeta = ref({ labels: [], data: [] })
 
 const COLOR_BY_CATEGORY = {
   'Cartão': '#7C3AED',
@@ -34,6 +36,7 @@ function computeCategories() {
 
 function renderChart() {
   const { labels, data } = computeCategories()
+  chartMeta.value = { labels, data }
   const total = data.reduce((a, b) => a + Number(b || 0), 0) || 1
   const palette = labels.map((lbl) => COLOR_BY_CATEGORY[lbl] || COLOR_BY_CATEGORY['Outros'])
 
@@ -71,10 +74,52 @@ function renderChart() {
       },
     },
   })
+
+  chart.options.onClick = (event) => {
+    const points = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true)
+    selectedIndex.value = points.length ? points[0].index : null
+    applySelection()
+  }
+
+  selectedIndex.value = null
+  applySelection()
 }
 
 onMounted(renderChart)
 watch(() => state.transactions.length, renderChart)
+
+const selectedInfo = computed(() => {
+  const { labels, data } = chartMeta.value
+  if (selectedIndex.value === null || !labels.length) {
+    return { title: 'Gastos', subtitle: 'do mês' }
+  }
+  const total = data.reduce((a, b) => a + Number(b || 0), 0) || 1
+  const value = data[selectedIndex.value] || 0
+  const pct = Math.round((value / total) * 100)
+  return { title: labels[selectedIndex.value], subtitle: `${pct}%` }
+})
+
+function hexToRgba(hex, alpha) {
+  const normalized = hex.replace('#', '')
+  const bigint = parseInt(normalized, 16)
+  const r = (bigint >> 16) & 255
+  const g = (bigint >> 8) & 255
+  const b = bigint & 255
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
+function applySelection() {
+  if (!chart) return
+  const baseColors = chartMeta.value.labels.map((lbl) => COLOR_BY_CATEGORY[lbl] || COLOR_BY_CATEGORY['Outros'])
+  if (selectedIndex.value === null) {
+    chart.data.datasets[0].backgroundColor = baseColors
+  } else {
+    chart.data.datasets[0].backgroundColor = baseColors.map((c, i) =>
+      i === selectedIndex.value ? c : hexToRgba(c, 0.35)
+    )
+  }
+  chart.update()
+}
 </script>
 
 <template>
@@ -116,8 +161,8 @@ watch(() => state.transactions.length, renderChart)
         </div>
         <div class="absolute grid place-items-center">
           <div class="centerBadge">
-            <div class="text-xs text-white/70">Gastos</div>
-            <div class="text-lg font-semibold">do mês</div>
+            <div class="text-xs text-white/70">{{ selectedInfo.title }}</div>
+            <div class="text-lg font-semibold">{{ selectedInfo.subtitle }}</div>
           </div>
         </div>
       </div>

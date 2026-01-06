@@ -79,6 +79,8 @@ const Current = computed(() => {
   position: relative;
   overflow: hidden;
   color: white;
+  --header-h: 64px;
+  --nav-h: 92px;
 }
 .bg-layer {
   position: absolute;
@@ -119,11 +121,12 @@ const Current = computed(() => {
   background: rgba(7, 15, 25, 0.35);
   backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  height: var(--header-h);
 }
 .content {
   position: relative;
   z-index: 10;
-  height: calc(100dvh - 64px);
+  height: calc(100dvh - var(--header-h) - var(--nav-h));
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -149,10 +152,11 @@ const Current = computed(() => {
   right: 0;
   bottom: 0;
   z-index: 40;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 .navcard {
   position: relative;
-  border-radius: 24px;
+  border-radius: 24px 24px 0 0;
   background: rgba(20, 20, 45, 0.72);
   backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.1);

@@ -2,16 +2,16 @@
 import { ref } from 'vue'
 import { addTransaction } from '../store/financeStore'
 
-const type = ref('expense')
+const type = ref('income')
 const title = ref('')
-const category = ref('Contas')
+const category = ref('Lucros')
 const amount = ref(null)
 
 function submit() {
   const value = Number(amount.value)
   if (!title.value || !value || value <= 0) return
   addTransaction({
-    type: type.value,
+    type: type.value === 'projection' ? 'invest' : 'income',
     title: title.value,
     category: category.value,
     amount: value,
@@ -27,10 +27,8 @@ function submit() {
     <div class="rounded-3xl bg-white/10 border border-white/10 backdrop-blur p-4">
       <div class="font-semibold mb-3">Adicionar</div>
       <div class="grid grid-cols-2 gap-2 mb-3">
-        <button class="chip" :class="type === 'expense' && 'active'" @click="type = 'expense'">Despesa</button>
-        <button class="chip" :class="type === 'income' && 'active'" @click="type = 'income'">Receita</button>
-        <button class="chip" :class="type === 'invest' && 'active'" @click="type = 'invest'">Investimento</button>
-        <button class="chip" :class="type === 'debt' && 'active'" @click="type = 'debt'">Dívida</button>
+        <button class="chip" :class="type === 'income' && 'active'" @click="type = 'income'">Lucros</button>
+        <button class="chip" :class="type === 'projection' && 'active'" @click="type = 'projection'">Projeção de lucros</button>
       </div>
       <label class="block text-xs text-white/70 mb-1">Título</label>
       <input v-model="title" class="inp" placeholder="Ex: iFood, Cartão, Aporte..." />
@@ -51,7 +49,9 @@ function submit() {
         Salvar
       </button>
     </div>
-    <div class="text-xs text-white/60">Tudo fica salvo localmente no seu dispositivo (sem backend).</div>
+    <div class="text-xs text-white/60">
+      Tudo fica salvo localmente no seu dispositivo (sem backend). Para gastos do mês, use a aba Relatórios (planilha).
+    </div>
   </div>
 </template>
 
