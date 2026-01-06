@@ -1,570 +1,177 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Finc v1.1 | Controle Financeiro</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Manrope', 'system-ui', 'sans-serif'],
-            display: ['Playfair Display', 'serif'],
-          },
-          colors: {
-            primary: '#7c3aed',
-            accent: '#f97316',
-            mint: '#22c55e',
-            rose: '#f43f5e',
-          },
-        },
-      },
-    };
-  </script>
-  <style>
-    body {
-      background: radial-gradient(circle at 20% 20%, rgba(244, 63, 94, 0.12), transparent 35%),
-                  radial-gradient(circle at 80% 0%, rgba(124, 58, 237, 0.18), transparent 30%),
-                  #0f172a;
-      background-attachment: fixed;
-    }
-    .glass {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(10px);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FINC - Controle Financeiro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/lucide-static@0.321.0/font/lucide.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f0e17; overflow-x: hidden; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 50; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+    </style>
 </head>
-<body class="text-slate-100 flex justify-center min-h-screen">
-  <div id="root" class="w-full max-w-3xl px-4 py-6"></div>
+<body class="text-gray-100 pb-24">
 
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <script type="text/babel">
-    const { useState, useEffect, useMemo, useRef } = React;
-
-    const palette = ["#7c3aed", "#f97316", "#22c55e", "#ec4899", "#06b6d4", "#f59e0b", "#ef4444", "#8b5cf6"];
-
-    const defaultMonth = {
-      label: "Maio 2026",
-      incomes: [
-        { label: "Salário 1", value: 6000 },
-        { label: "Salário 2", value: 3000 },
-        { label: "Outros", value: 900 },
-      ],
-      expenses: [
-        { label: "Cartão (fechamento)", category: "Cartão", planned: 1200, actual: 1400, paid: true },
-        { label: "Internet + luz", category: "Contas fixas", planned: 450, actual: 520, paid: true },
-        { label: "Streaming", category: "Uso pessoal", planned: 90, actual: 120, paid: false },
-        { label: "Almoço fora", category: "Uso pessoal", planned: 120, actual: 140, paid: false },
-        { label: "Investimento", category: "Investimento", planned: 500, actual: 500, paid: true },
-        { label: "Reserva emergência", category: "Emergência", planned: 0, actual: 100, paid: false },
-      ],
-      categories: [
-        { label: "Cartão", planned: 1200, color: "#7c3aed" },
-        { label: "Contas fixas", planned: 900, color: "#f97316" },
-        { label: "Uso pessoal", planned: 400, color: "#22c55e" },
-        { label: "Investimento", planned: 500, color: "#ec4899" },
-        { label: "Emergência", planned: 100, color: "#06b6d4" },
-      ],
-    };
-
-    const loadState = () => {
-      try {
-        const saved = localStorage.getItem("finc-v1");
-        if (saved) return JSON.parse(saved);
-      } catch (err) {
-        console.warn("LocalStorage não disponível", err);
-      }
-      return { currentMonth: "2026-05", months: { "2026-05": defaultMonth } };
-    };
-
-    const currency = (value) =>
-      (Number(value) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 0 });
-
-    const sum = (items, key) => items.reduce((acc, item) => acc + (Number(item[key]) || 0), 0);
-
-    const ChartDonut = ({ data, labels, colors }) => {
-      const ref = useRef(null);
-      const chartRef = useRef(null);
-
-      useEffect(() => {
-        if (!ref.current) return;
-        if (chartRef.current) chartRef.current.destroy();
-        chartRef.current = new Chart(ref.current, {
-          type: "doughnut",
-          data: {
-            labels,
-            datasets: [{ data, backgroundColor: colors, borderWidth: 0, hoverOffset: 8, cutout: "65%" }],
-          },
-          options: {
-            plugins: {
-              legend: { display: false },
-              tooltip: {
-                backgroundColor: "#0f172a",
-                padding: 10,
-                callbacks: { label: (ctx) => `${ctx.label}: ${currency(ctx.raw)}` },
-              },
-            },
-          },
-        });
-        return () => chartRef.current?.destroy();
-      }, [data, labels, colors]);
-
-      return <canvas ref={ref} height="280" />;
-    };
-
-    const Input = (props) => (
-      <input
-        {...props}
-        className={
-          "w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-white placeholder-white/50 focus:border-accent focus:ring-2 focus:ring-accent/60 " +
-          (props.className || "")
-        }
-      />
-    );
-
-    const Select = ({ options, ...rest }) => (
-      <select
-        {...rest}
-        className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-white focus:border-accent focus:ring-2 focus:ring-accent/60"
-      >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value} className="bg-slate-900">
-            {opt.label}
-          </option>
-        ))}
-      </select>
-    );
-
-    const App = () => {
-      const [state, setState] = useState(loadState);
-      const [tab, setTab] = useState("expense"); // expense | income
-      const [fabOpen, setFabOpen] = useState(false);
-
-      useEffect(() => {
-        localStorage.setItem("finc-v1", JSON.stringify(state));
-      }, [state]);
-
-      const month = state.months[state.currentMonth];
-
-      const totals = useMemo(() => {
-        const incomes = sum(month.incomes, "value");
-        const expenses = sum(month.expenses, "actual");
-        const planned = sum(month.categories, "planned");
-        return { incomes, expenses, planned, balance: incomes - expenses };
-      }, [month]);
-
-      const groupedCategories = useMemo(() => {
-        const base = month.categories.map((c, i) => ({
-          label: c.label,
-          planned: Number(c.planned) || 0,
-          color: c.color || palette[i % palette.length],
-          actual: 0,
-        }));
-        const byLabel = Object.fromEntries(base.map((c) => [c.label, c]));
-        month.expenses.forEach((e) => {
-          if (!byLabel[e.category]) {
-            const newCat = {
-              label: e.category,
-              planned: 0,
-              color: palette[(Object.keys(byLabel).length + 1) % palette.length],
-              actual: 0,
-            };
-            byLabel[e.category] = newCat;
-          }
-          byLabel[e.category].actual += Number(e.actual) || 0;
-        });
-        return Object.values(byLabel);
-      }, [month]);
-
-      const handleIncome = (event) => {
-        event.preventDefault();
-        const form = new FormData(event.target);
-        const label = form.get("label").trim();
-        const value = Number(form.get("value")) || 0;
-        if (!label) return;
-        setState((prev) => {
-          const next = { ...prev };
-          const m = { ...next.months[next.currentMonth] };
-          m.incomes = [...m.incomes, { label, value }];
-          next.months[next.currentMonth] = m;
-          return next;
-        });
-        event.target.reset();
-        setFabOpen(false);
-      };
-
-      const handleExpense = (event) => {
-        event.preventDefault();
-        const form = new FormData(event.target);
-        const label = form.get("label").trim();
-        const category = form.get("category").trim() || "Outro";
-        const planned = Number(form.get("planned")) || 0;
-        const actual = Number(form.get("actual")) || 0;
-        const paid = form.get("paid") === "on";
-        if (!label) return;
-        setState((prev) => {
-          const next = { ...prev };
-          const m = { ...next.months[next.currentMonth] };
-          m.expenses = [...m.expenses, { label, category, planned, actual, paid }];
-          next.months[next.currentMonth] = m;
-          return next;
-        });
-        event.target.reset();
-        setFabOpen(false);
-      };
-
-      const togglePaid = (idx) => {
-        setState((prev) => {
-          const next = { ...prev };
-          const m = { ...next.months[next.currentMonth] };
-          m.expenses = m.expenses.map((e, i) => (i === idx ? { ...e, paid: !e.paid } : e));
-          next.months[next.currentMonth] = m;
-          return next;
-        });
-      };
-
-      const newMonth = () => {
-        const label = prompt("Nome do mês (ex: Junho 2026)");
-        if (!label) return;
-        const key = Date.now().toString();
-        setState((prev) => ({
-          ...prev,
-          currentMonth: key,
-          months: {
-            ...prev.months,
-            [key]: { ...defaultMonth, label, incomes: [], expenses: [], categories: defaultMonth.categories },
-          },
-        }));
-      };
-
-      const exportCSV = () => {
-        const lines = [];
-        lines.push(`Mês,${month.label}`);
-        lines.push("");
-        lines.push("Entradas");
-        lines.push("Descrição,Valor");
-        month.incomes.forEach((i) => lines.push(`${i.label},${i.value}`));
-        lines.push("");
-        lines.push("Categorias (orçado x real)");
-        lines.push("Categoria,Orçado,Real");
-        groupedCategories.forEach((c) => lines.push(`${c.label},${c.planned},${c.actual}`));
-        lines.push("");
-        lines.push("Gastos detalhados");
-        lines.push("Descrição,Categoria,Orçado,Real,Pago");
-        month.expenses.forEach((e) => lines.push(`${e.label},${e.category},${e.planned},${e.actual},${e.paid ? "Sim" : "Não"}`));
-        const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `${month.label.replace(/\s+/g, "_")}.csv`;
-        link.click();
-      };
-
-      const exportPDF = () => window.print();
-
-      const scrollToSection = (id) => {
-        const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      };
-
-      return (
-        <div className="space-y-4 pb-28">
-          {/* Home */}
-          <section
-            id="home-section"
-            className="rounded-2xl p-6 shadow-2xl"
-            style={{
-              background: "radial-gradient(circle at 20% 20%, rgba(250, 204, 21, 0.2), transparent 40%), radial-gradient(circle at 80% 0%, rgba(236, 72, 153, 0.25), transparent 35%), linear-gradient(135deg, #0b1024 0%, #1b1c3a 100%)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-white/70">Finc v1.3</p>
-                <h1 className="mt-1 text-3xl font-display font-semibold leading-tight">Seu hub financeiro móvel</h1>
-                <p className="mt-2 text-white/70 text-sm">
-                  Cards vibrantes, navegação inferior e acesso rápido às áreas principais. Dados ficam salvos automaticamente neste dispositivo (offline).
-                </p>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  <button
-                    onClick={() => scrollToSection("dashboard-section")}
-                    className="rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-5 py-2 text-sm font-extrabold text-slate-900 shadow-lg hover:opacity-95"
-                  >
-                    Abrir dashboard
-                  </button>
-                  <span className="rounded-full bg-white/10 px-3 py-2 text-xs font-bold text-white/80 border border-white/10">
-                    Offline-first · localStorage
-                  </span>
-                </div>
-              </div>
-              <div className="rounded-2xl bg-white/5 px-4 py-3 text-right">
-                <p className="text-xs text-white/60">Saldo</p>
-                <p className="text-2xl font-extrabold text-mint">{currency(totals.balance)}</p>
-                <p className="text-xs text-white/60">Mês: {month.label}</p>
-              </div>
-            </div>
-
-            <div className="mt-6 grid gap-3 md:grid-cols-2">
-              <button
-                onClick={() => scrollToSection("summary-section")}
-                className="h-full rounded-3xl p-4 text-left shadow-lg border border-white/10"
-                style={{ background: "linear-gradient(135deg, #fbbf24, #f97316)" }}
-              >
-                <p className="text-sm font-semibold text-slate-900 flex items-center gap-2">💰 Saldo total</p>
-                <p className="text-2xl font-extrabold text-slate-900 mt-1">{currency(totals.balance)}</p>
-              </button>
-              <button
-                onClick={() => scrollToSection("entries-section")}
-                className="h-full rounded-3xl p-4 text-left shadow-lg border border-white/10"
-                style={{ background: "linear-gradient(135deg, #22c55e, #16a34a)" }}
-              >
-                <p className="text-sm font-semibold text-slate-900 flex items-center gap-2">📈 Entradas</p>
-                <p className="text-2xl font-extrabold text-slate-900 mt-1">{currency(totals.incomes)}</p>
-              </button>
-              <button
-                onClick={() => scrollToSection("expenses-section")}
-                className="h-full rounded-3xl p-4 text-left shadow-lg border border-white/10"
-                style={{ background: "linear-gradient(135deg, #f43f5e, #e11d48)" }}
-              >
-                <p className="text-sm font-semibold text-white flex items-center gap-2">💳 Despesas</p>
-                <p className="text-2xl font-extrabold text-white mt-1">{currency(totals.expenses)}</p>
-              </button>
-              <button
-                onClick={() => scrollToSection("summary-section")}
-                className="h-full rounded-3xl p-4 text-left shadow-lg border border-white/10"
-                style={{ background: "linear-gradient(135deg, #a855f7, #7c3aed)" }}
-              >
-                <p className="text-sm font-semibold text-white flex items-center gap-2">📊 Investimentos</p>
-                <p className="text-2xl font-extrabold text-white mt-1">{currency(Math.max(totals.balance * 0.2, 0))}</p>
-              </button>
-            </div>
-          </section>
-
-          {/* Dashboard */}
-          <header id="dashboard-section" className="glass rounded-2xl p-4 shadow-xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-[0.15em] text-white/60">Dashboard</p>
-                <h2 className="text-2xl font-display font-semibold leading-tight">Painel financeiro</h2>
-              </div>
-              <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white">Saldo: {currency(totals.balance)}</span>
-            </div>
-            <div className="mt-3 grid gap-3 sm:grid-cols-3">
-              <button onClick={() => scrollToSection("entries-section")} className="glass rounded-xl p-3 text-left hover:bg-white/10 transition">
-                <p className="text-xs uppercase tracking-[0.15em] text-white/60">Entradas</p>
-                <p className="text-xl font-bold text-mint">{currency(totals.incomes)}</p>
-              </button>
-              <button onClick={() => scrollToSection("expenses-section")} className="glass rounded-xl p-3 text-left hover:bg-white/10 transition">
-                <p className="text-xs uppercase tracking-[0.15em] text-white/60">Gasto real</p>
-                <p className="text-xl font-bold text-rose">{currency(totals.expenses)}</p>
-              </button>
-              <button onClick={() => scrollToSection("summary-section")} className="glass rounded-xl p-3 text-left hover:bg-white/10 transition">
-                <p className="text-xs uppercase tracking-[0.15em] text-white/60">Orçado</p>
-                <p className="text-xl font-bold text-accent">{currency(totals.planned)}</p>
-              </button>
-            </div>
-            <div className="mt-4 grid gap-2 sm:grid-cols-4">
-              <Select
-                options={Object.entries(state.months).map(([key, m]) => ({ value: key, label: m.label }))}
-                value={state.currentMonth}
-                onChange={(e) => setState((prev) => ({ ...prev, currentMonth: e.target.value }))}
-              />
-              <button onClick={newMonth} className="glass rounded-xl px-3 py-2 text-sm font-bold text-white hover:bg-white/10">
-                + Novo mês
-              </button>
-              <button onClick={exportCSV} className="glass rounded-xl px-3 py-2 text-sm font-bold text-white hover:bg-white/10">
-                Exportar CSV
-              </button>
-              <button onClick={exportPDF} className="glass rounded-xl px-3 py-2 text-sm font-bold text-white hover:bg-white/10">
-                Exportar PDF
-              </button>
-            </div>
-          </header>
-
-          <section id="summary-section" className="grid gap-4 md:grid-cols-2">
-            <div className="glass rounded-2xl p-4 shadow-xl">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold">Distribuição de gastos</h2>
-                <span className="text-xs font-bold text-white/70">Visão mensal</span>
-              </div>
-              <div className="mt-4">
-                <ChartDonut
-                  data={groupedCategories.map((c) => c.actual)}
-                  labels={groupedCategories.map((c) => c.label)}
-                  colors={groupedCategories.map((c) => c.color)}
-                />
-              </div>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                {groupedCategories.map((c) => (
-                  <div key={c.label} className="flex items-center gap-3 rounded-xl bg-white/5 px-3 py-2">
-                    <span className="h-3 w-3 rounded-full" style={{ background: c.color }} />
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold">{c.label}</p>
-                      <p className="text-xs text-white/60">
-                        {currency(c.actual)} · {totals.expenses ? Math.round((c.actual / totals.expenses) * 100) : 0}%
-                      </p>
-                    </div>
-                    <span className="text-xs font-bold text-white/70">{currency(c.planned)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="glass rounded-2xl p-4 shadow-xl space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold">Resumo rápido</h2>
-                <span className="text-xs font-bold text-white/70">Checklist</span>
-              </div>
-              <div className="space-y-2">
-                {month.expenses.map((e, idx) => (
-                  <div key={idx} className="flex items-center gap-3 rounded-xl bg-white/5 px-3 py-2">
-                    <input
-                      type="checkbox"
-                      checked={e.paid}
-                      onChange={() => togglePaid(idx)}
-                      className="h-5 w-5 rounded border-white/30 bg-transparent text-accent focus:ring-accent"
-                    />
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold">{e.label}</p>
-                      <p className="text-xs text-white/60">{e.category} · Orçado {currency(e.planned)}</p>
-                    </div>
-                    <span className="text-sm font-bold text-white/80">{currency(e.actual)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section id="entries-section" className="glass rounded-2xl p-4 shadow-xl">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold">Entradas</h2>
-              <span className="text-xs font-bold text-white/70">Total {currency(totals.incomes)}</span>
-            </div>
-            <div className="mt-2 space-y-2">
-              {month.incomes.map((inc, idx) => (
-                <div key={idx} className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2">
-                  <div>
-                    <p className="text-sm font-semibold">{inc.label}</p>
-                    <p className="text-xs text-white/60">Entrada</p>
-                  </div>
-                  <span className="text-sm font-bold text-mint">{currency(inc.value)}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section id="expenses-section" className="glass rounded-2xl p-4 shadow-xl">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold">Gastos detalhados</h2>
-              <span className="text-xs font-bold text-white/70">Total {currency(totals.expenses)}</span>
-            </div>
-            <div className="mt-2 space-y-2">
-              {month.expenses.map((exp, idx) => (
-                <div key={idx} className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2">
-                  <div>
-                    <p className="text-sm font-semibold">{exp.label}</p>
-                    <p className="text-xs text-white/60">{exp.category}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-bold text-white/80">{currency(exp.actual)}</p>
-                    <p className="text-xs text-white/50">Orçado {currency(exp.planned)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {fabOpen && (
-            <div className="fixed inset-0 z-20 bg-black/50" onClick={() => setFabOpen(false)}></div>
-          )}
-
-          <div className={"fixed inset-x-0 bottom-3 z-30 mx-auto w-full max-w-3xl px-4 transition " + (fabOpen ? "translate-y-0" : "translate-y-[28px]")}>
-            <div
-              className="rounded-[24px] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.55)] border border-white/10"
-              style={{ background: "linear-gradient(135deg, rgba(64,15,110,0.95), rgba(17,24,39,0.95))" }}
-            >
-              <div className="flex items-center justify-around text-xs font-bold text-white/80">
-                <button onClick={() => scrollToSection("home-section")} className="flex flex-col items-center gap-1 hover:text-white">
-                  <span className="text-lg">🏠</span>
-                  Home
-                </button>
-                <button onClick={() => setFabOpen(true)} className="flex flex-col items-center gap-1 text-amber-300">
-                  <span className="grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 text-2xl shadow-lg">+</span>
-                  Adicionar
-                </button>
-                <button onClick={() => scrollToSection("summary-section")} className="flex flex-col items-center gap-1 hover:text-white">
-                  <span className="text-lg">📊</span>
-                  Relatórios
-                </button>
-                <button onClick={() => scrollToSection("expenses-section")} className="flex flex-col items-center gap-1 hover:text-white">
-                  <span className="text-lg">💳</span>
-                  Gastos
-                </button>
-                <button onClick={() => scrollToSection("dashboard-section")} className="flex flex-col items-center gap-1 hover:text-white">
-                  <span className="text-lg">👤</span>
-                  Perfil
-                </button>
-              </div>
-
-              {fabOpen && (
-                <div className="mt-3 rounded-2xl bg-white/5 p-3">
-                  <div className="mb-2 flex gap-2 rounded-full bg-white/10 p-1 text-sm font-bold">
-                    <button
-                      onClick={() => setTab("expense")}
-                      className={"flex-1 rounded-full px-3 py-1 " + (tab === "expense" ? "bg-white text-slate-900" : "text-white/80")}
-                    >
-                      Gasto
-                    </button>
-                    <button
-                      onClick={() => setTab("income")}
-                      className={"flex-1 rounded-full px-3 py-1 " + (tab === "income" ? "bg-white text-slate-900" : "text-white/80")}
-                    >
-                      Entrada
-                    </button>
-                  </div>
-
-                  {tab === "expense" ? (
-                    <form className="grid gap-2 sm:grid-cols-2" onSubmit={handleExpense}>
-                      <Input name="label" placeholder="Descrição do gasto" required />
-                      <Input name="category" placeholder="Categoria (ex: Cartão)" />
-                      <Input name="planned" placeholder="Orçado" type="number" min="0" step="10" />
-                      <Input name="actual" placeholder="Real" type="number" min="0" step="10" required />
-                      <label className="flex items-center gap-2 text-sm font-semibold text-white/80">
-                        <input type="checkbox" name="paid" className="h-4 w-4 rounded border-white/40 bg-transparent text-accent focus:ring-accent" />
-                        Pago
-                      </label>
-                      <button className="col-span-full rounded-xl bg-accent px-4 py-2 text-sm font-extrabold text-slate-900 shadow-lg hover:opacity-95">
-                        Salvar gasto
-                      </button>
-                    </form>
-                  ) : (
-                    <form className="grid gap-2 sm:grid-cols-2" onSubmit={handleIncome}>
-                      <Input name="label" placeholder="Descrição da entrada" required />
-                      <Input name="value" placeholder="Valor" type="number" min="0" step="10" required />
-                      <button className="col-span-full rounded-xl bg-mint px-4 py-2 text-sm font-extrabold text-slate-900 shadow-lg hover:opacity-95">
-                        Salvar entrada
-                      </button>
-                    </form>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
+    <header class="p-6 flex justify-between items-center">
+        <div>
+            <p class="text-[10px] text-purple-400 font-bold tracking-[0.2em] uppercase">FINC V1.2</p>
+            <h1 class="text-xl font-bold">Meu Painel</h1>
         </div>
-      );
-    };
+        <div class="w-10 h-10 rounded-full border border-purple-500/50 overflow-hidden bg-purple-900/30 flex items-center justify-center">
+            <i class="lucide-user text-purple-300"></i>
+        </div>
+    </header>
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-  </script>
+    <section class="px-6 mb-8">
+        <div class="glass p-6 rounded-[2rem] card-shadow relative overflow-hidden">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-purple-600/10 rounded-full blur-2xl"></div>
+            <p class="text-gray-400 text-sm mb-1">Saldo disponível</p>
+            <h2 id="total-balance" class="text-4xl font-bold text-white">R$ 0,00</h2>
+        </div>
+    </section>
+
+    <main class="px-6 space-y-4">
+        
+        <div class="bg-emerald-900/20 border border-emerald-500/20 p-5 rounded-[1.5rem] flex justify-between items-center">
+            <div>
+                <p class="text-[10px] uppercase font-bold text-emerald-400 mb-1">Entradas</p>
+                <p id="total-income" class="text-2xl font-bold text-emerald-50">R$ 0,00</p>
+            </div>
+            <div class="bg-emerald-500/20 p-3 rounded-2xl">
+                <i class="lucide-trending-up text-emerald-400"></i>
+            </div>
+        </div>
+
+        <div class="bg-rose-900/20 border border-rose-500/20 p-5 rounded-[1.5rem] flex justify-between items-center">
+            <div>
+                <p class="text-[10px] uppercase font-bold text-rose-400 mb-1">Gasto Real</p>
+                <p id="total-expenses" class="text-2xl font-bold text-rose-50">R$ 0,00</p>
+            </div>
+            <div class="bg-rose-500/20 p-3 rounded-2xl">
+                <i class="lucide-credit-card text-rose-400"></i>
+            </div>
+        </div>
+
+        <div class="bg-orange-900/10 border border-orange-500/20 p-5 rounded-[1.5rem] flex justify-between items-center">
+            <div>
+                <p class="text-[10px] uppercase font-bold text-orange-400 mb-1">Orçamento Planejado</p>
+                <p class="text-2xl font-bold text-orange-50">R$ 3.500</p>
+            </div>
+            <div class="bg-orange-500/20 p-3 rounded-2xl">
+                <i class="lucide-coins text-orange-400"></i>
+            </div>
+        </div>
+    </main>
+
+    <div id="add-modal" class="modal px-6">
+        <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] space-y-6">
+            <h3 class="text-xl font-bold text-center">Nova Movimentação</h3>
+            
+            <div>
+                <label class="text-xs text-gray-400 uppercase font-bold">Valor (R$)</label>
+                <input id="input-amount" type="number" placeholder="0.00" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl mt-2 text-2xl focus:outline-none focus:border-purple-500 transition">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="addEntry('income')" class="bg-emerald-600 hover:bg-emerald-500 p-4 rounded-xl font-bold transition">Entrada</button>
+                <button onclick="addEntry('expense')" class="bg-rose-600 hover:bg-rose-500 p-4 rounded-xl font-bold transition">Gasto</button>
+            </div>
+
+            <button onclick="toggleModal()" class="w-full text-gray-500 text-sm font-medium">Cancelar</button>
+        </div>
+    </div>
+
+    <nav class="fixed bottom-0 left-0 right-0 glass border-t border-white/5 p-4 flex justify-around items-center rounded-t-[2.5rem]">
+        <button class="text-purple-500"><i class="lucide-home"></i></button>
+        <button class="text-gray-500"><i class="lucide-pie-chart"></i></button>
+        
+        <button onclick="toggleModal()" class="bg-purple-600 p-4 rounded-full -mt-14 border-[6px] border-[#0f0e17] shadow-2xl active:scale-90 transition">
+            <i class="lucide-plus text-white text-xl"></i>
+        </button>
+        
+        <button class="text-gray-500"><i class="lucide-wallet"></i></button>
+        <button onclick="clearData()" class="text-gray-500"><i class="lucide-trash-2"></i></button>
+    </nav>
+
+    <script>
+        // ESTADO DO APP
+        let transactions = JSON.parse(localStorage.getItem('finc_transactions')) || [];
+
+        // FUNÇÃO PARA ABRIR/FECHAR MODAL
+        function toggleModal() {
+            document.getElementById('add-modal').classList.toggle('active');
+            document.getElementById('input-amount').focus();
+        }
+
+        // ADICIONAR MOVIMENTAÇÃO
+        function addEntry(type) {
+            const amountInput = document.getElementById('input-amount');
+            const amount = parseFloat(amountInput.value);
+
+            if (!amount || amount <= 0) {
+                alert("Por favor, digite um valor válido.");
+                return;
+            }
+
+            const newTransaction = {
+                id: Date.now(),
+                amount: amount,
+                type: type, // 'income' ou 'expense'
+                date: new Date().toISOString()
+            };
+
+            transactions.push(newTransaction);
+            saveAndRefresh();
+            
+            // Limpar e fechar
+            amountInput.value = '';
+            toggleModal();
+        }
+
+        // SALVAR E ATUALIZAR TELA
+        function saveAndRefresh() {
+            localStorage.setItem('finc_transactions', JSON.stringify(transactions));
+            renderDashboard();
+        }
+
+        // CALCULAR E EXIBIR DADOS
+        function renderDashboard() {
+            const income = transactions
+                .filter(t => t.type === 'income')
+                .reduce((acc, t) => acc + t.amount, 0);
+
+            const expenses = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((acc, t) => acc + t.amount, 0);
+
+            const balance = income - expenses;
+
+            // Formatação Real Brasileiro
+            const formatter = new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            });
+
+            document.getElementById('total-balance').innerText = formatter.format(balance);
+            document.getElementById('total-income').innerText = formatter.format(income);
+            document.getElementById('total-expenses').innerText = formatter.format(expenses);
+        }
+
+        // LIMPAR TUDO
+        function clearData() {
+            if(confirm("Deseja apagar todos os dados?")) {
+                transactions = [];
+                saveAndRefresh();
+            }
+        }
+
+        // INICIALIZAR
+        renderDashboard();
+    </script>
 </body>
 </html>

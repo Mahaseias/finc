@@ -2,16 +2,15 @@
 
 Frontend estático (HTML/CSS/JS) mobile-first para acompanhar entradas, categorias orçadas x reais e checklist de gastos, com gráfico de distribuição mensal.
 
-## v1.3 (Home vibrante + menu inferior estilo app)
-- HOME com cards coloridos (saldo, entradas, despesas, investimentos) clicáveis para seções; sem login (flow 100% offline/local).
-- Menu inferior arredondado com ícones (Home, Adicionar, Relatórios, Gastos, Perfil); botão central abre formulário de gasto/entrada.
-- SPA React (CDN + Babel), Tailwind e Chart.js; dados em `localStorage` (`finc-v1`), scroll suave para seções.
+## v1.2 (HTML estático estilo card vibrante)
+- UI estática em HTML + Tailwind + Lucide (CDN), foco mobile, cards vibrantes e menu inferior com botão flutuante para adicionar.
+- Modal para nova movimentação (Entrada ou Gasto); dados persistem em `localStorage` (`finc_transactions`) e são carregados automaticamente.
+- Sem login; 100% offline/local.
 
 Como usar:
 - Abra `index.html` no navegador (duplo clique ou servindo via HTTP estático).
-- Use os formulários de Entrada e Gasto pelo botão flutuante; dados persistem em `localStorage`.
-- Selecione/adicione meses pelo seletor do topo.
-- Exporte CSV ou PDF pelos botões dedicados.
+- Clique no botão “+” do menu inferior para registrar entradas ou gastos; os totais são exibidos nos cards.
+- Dados ficam gravados no navegador; use o ícone de lixeira para limpar.
 
 Publicar no GitHub Pages:
 ```
