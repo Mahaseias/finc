@@ -33,14 +33,14 @@ function clearAll() {
 
 <template>
   <div class="space-y-4">
-    <div class="rounded-3xl bg-white/10 border border-white/10 backdrop-blur p-4">
+    <div class="rounded-3xl bg-white/85 border border-slate-200/70 backdrop-blur p-4 shadow-[0_14px_40px_rgba(0,0,0,0.08)]">
       <div class="font-semibold mb-2">Configurações locais</div>
-      <div class="text-sm text-white/70">
+      <div class="text-sm text-slate-500">
         Sem backend: tudo fica salvo no dispositivo. Aqui você gerencia seus dados locais.
       </div>
     </div>
 
-    <div class="rounded-3xl bg-white/10 border border-white/10 backdrop-blur p-4 space-y-3">
+    <div class="rounded-3xl bg-white/85 border border-slate-200/70 backdrop-blur p-4 space-y-3 shadow-[0_14px_40px_rgba(0,0,0,0.08)]">
       <button class="actionBtn" @click="exportJSON">Exportar JSON</button>
       <label class="actionBtn actionBtn--alt">
         Importar JSON
@@ -56,16 +56,16 @@ function clearAll() {
   width:100%;
   padding: 12px 14px;
   border-radius: 16px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.95);
+  border: 1px solid rgba(148,163,184,.45);
   text-align: center;
   font-weight: 600;
 }
 .actionBtn--alt{
-  background: rgba(255,255,255,.12);
+  background: rgba(124,58,237,.12);
 }
 .actionBtn--danger{
-  background: rgba(239,68,68,.20);
-  border-color: rgba(239,68,68,.35);
+  background: rgba(239,68,68,.16);
+  border-color: rgba(239,68,68,.45);
 }
 </style>

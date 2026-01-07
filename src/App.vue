@@ -27,7 +27,7 @@ const Current = computed(() => {
         <div class="flex items-center gap-2">
           <span class="logo">📈</span>
           <div>
-            <div class="text-xs text-white/70 leading-4">Finance</div>
+            <div class="text-xs text-slate-500 leading-4">Finance</div>
             <div class="text-base font-semibold leading-5">Seu painel</div>
           </div>
         </div>
@@ -85,7 +85,7 @@ const Current = computed(() => {
 .bg-layer {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #2b1668 0%, #1b2a70 45%, #0b1e33 100%);
+  background: linear-gradient(180deg, #fdf8ff 0%, #f4f6ff 50%, #eef6ff 100%);
 }
 .blob {
   position: absolute;
@@ -98,29 +98,29 @@ const Current = computed(() => {
   height: 320px;
   left: -120px;
   top: -120px;
-  background: rgba(168, 85, 247, 0.7);
+  background: rgba(196, 181, 253, 0.6);
 }
 .blob-b {
   width: 320px;
   height: 320px;
   right: -140px;
   top: 180px;
-  background: rgba(34, 211, 238, 0.6);
+  background: rgba(125, 211, 252, 0.45);
 }
 .blob-c {
   width: 320px;
   height: 320px;
   left: 60px;
   bottom: -140px;
-  background: rgba(236, 72, 153, 0.45);
+  background: rgba(251, 191, 36, 0.3);
 }
 .header {
   position: sticky;
   top: 0;
   z-index: 30;
-  background: rgba(7, 15, 25, 0.35);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
   height: var(--header-h);
 }
 .content {
@@ -136,15 +136,15 @@ const Current = computed(() => {
   width: 36px;
   height: 36px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(124, 58, 237, 0.2);
 }
 .iconbtn {
   width: 40px;
   height: 40px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.35);
 }
 .bottomnav {
   position: fixed;
@@ -157,9 +157,9 @@ const Current = computed(() => {
 .navcard {
   position: relative;
   border-radius: 24px 24px 0 0;
-  background: rgba(20, 20, 45, 0.72);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.35);
   padding: 12px 10px;
 }
 .navbtn {
@@ -170,11 +170,11 @@ const Current = computed(() => {
   width: 72px;
   padding: 8px 6px;
   border-radius: 16px;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(71, 85, 105, 0.9);
 }
 .navbtn.active {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: rgba(124, 58, 237, 0.12);
+  color: #4c1d95;
 }
 .navbtn small {
   font-size: 11px;
@@ -193,8 +193,8 @@ const Current = computed(() => {
   height: 56px;
   border-radius: 9999px;
   background: linear-gradient(135deg, #fde047, #fb923c);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(251, 191, 36, 0.6);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
   display: grid;
   place-items: center;
   font-size: 28px;

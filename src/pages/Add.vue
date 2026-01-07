@@ -24,21 +24,21 @@ function submit() {
 
 <template>
   <div class="space-y-4">
-    <div class="rounded-3xl bg-white/10 border border-white/10 backdrop-blur p-4">
+    <div class="rounded-3xl bg-white/85 border border-slate-200/70 backdrop-blur p-4 shadow-[0_14px_40px_rgba(0,0,0,0.08)]">
       <div class="font-semibold mb-3">Adicionar</div>
       <div class="grid grid-cols-2 gap-2 mb-3">
         <button class="chip" :class="type === 'income' && 'active'" @click="type = 'income'">Lucros</button>
         <button class="chip" :class="type === 'projection' && 'active'" @click="type = 'projection'">Projeção de lucros</button>
       </div>
-      <label class="block text-xs text-white/70 mb-1">Título</label>
+      <label class="block text-xs text-slate-500 mb-1">Título</label>
       <input v-model="title" class="inp" placeholder="Ex: iFood, Cartão, Aporte..." />
       <div class="grid grid-cols-2 gap-2 mt-3">
         <div>
-          <label class="block text-xs text-white/70 mb-1">Categoria</label>
+          <label class="block text-xs text-slate-500 mb-1">Categoria</label>
           <input v-model="category" class="inp" placeholder="Ex: Lazer, Contas..." />
         </div>
         <div>
-          <label class="block text-xs text-white/70 mb-1">Valor (R$)</label>
+          <label class="block text-xs text-slate-500 mb-1">Valor (R$)</label>
           <input v-model="amount" type="number" inputmode="decimal" class="inp" placeholder="0,00" />
         </div>
       </div>
@@ -49,7 +49,7 @@ function submit() {
         Salvar
       </button>
     </div>
-    <div class="text-xs text-white/60">
+    <div class="text-xs text-slate-500">
       Tudo fica salvo localmente no seu dispositivo (sem backend). Para gastos do mês, use a aba Relatórios (planilha).
     </div>
   </div>
@@ -60,20 +60,20 @@ function submit() {
   width: 100%;
   padding: 12px 12px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(248, 250, 252, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.5);
   outline: none;
 }
 .chip {
   border-radius: 16px;
   padding: 10px 10px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.85);
+  background: rgba(248, 250, 252, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  color: #1f2937;
 }
 .chip.active {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: rgba(124, 58, 237, 0.15);
+  border-color: rgba(124, 58, 237, 0.3);
+  color: #4c1d95;
 }
 </style>
